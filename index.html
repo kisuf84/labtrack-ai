@@ -3,404 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabTrack AI - Dashboard</title>
+    <title>LabTrack AI - SAFER Agrobiológicos</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --accent: #00d9ff;
-            --accent-green: #00ff88;
-            --gradient: linear-gradient(90deg, #00d9ff, #00ff88);
+            --bg: #0f172a; --bg2: #1e293b; --card: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1); --text: #fff; --muted: #64748b;
+            --accent: #00d9ff; --green: #00ff88; --red: #ef4444; --yellow: #fbbf24;
         }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, var(--bg), var(--bg2)); min-height: 100vh; color: var(--text); }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            min-height: 100vh;
-            color: var(--text-primary);
-        }
+        .header { background: rgba(0,0,0,0.3); padding: 0.75rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .header-content { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo h1 { font-size: 1.1rem; background: linear-gradient(90deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { font-size: 0.6rem; padding: 0.15rem 0.4rem; border-radius: 8px; margin-left: 0.5rem; }
+        .badge.demo { background: rgba(251,191,36,0.2); color: var(--yellow); }
+        .badge.live { background: rgba(34,197,94,0.2); color: var(--green); }
         
-        .header {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
+        .nav { display: flex; gap: 0.2rem; background: var(--card); padding: 0.2rem; border-radius: 8px; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { padding: 0.4rem 0.6rem; border: none; background: transparent; color: var(--muted); border-radius: 6px; cursor: pointer; font-size: 0.75rem; white-space: nowrap; }
+        .nav-btn.active { background: linear-gradient(90deg, var(--accent), var(--green)); color: #000; font-weight: 600; }
+        .nav-btn .count { background: var(--red); color: #fff; font-size: 0.55rem; padding: 0.1rem 0.25rem; border-radius: 6px; margin-left: 0.2rem; }
         
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            align-items: center;
-        }
+        .main { max-width: 1000px; margin: 0 auto; padding: 0.75rem; }
         
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo h1 {
-            font-size: 1.25rem;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .data-badge {
-            font-size: 0.65rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 10px;
-            margin-left: 0.5rem;
-        }
-        
-        .data-badge.success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .data-badge.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-        .data-badge.demo { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-        
-        .nav {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--bg-card);
-            padding: 0.25rem;
-            border-radius: 10px;
-        }
-        
-        .nav-btn {
-            padding: 0.5rem 0.75rem;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        
-        .nav-btn.active {
-            background: var(--gradient);
-            color: #000;
-            font-weight: 600;
-        }
-        
-        .nav-btn .badge {
-            background: #ef4444;
-            color: white;
-            font-size: 0.6rem;
-            padding: 0.1rem 0.3rem;
-            border-radius: 8px;
-            margin-left: 0.2rem;
-        }
-        
-        .main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.75rem;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .stat-value.warning {
-            background: linear-gradient(90deg, #ef4444, #f97316);
-            -webkit-background-clip: text;
-        }
-        
-        .stat-label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
+        /* Stats - Clickable */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.75rem; }
+        .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .stat:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .stat.active { border-color: var(--accent); background: rgba(0,217,255,0.1); }
+        .stat-val { font-size: 1.25rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-val.warn { background: linear-gradient(90deg, var(--red), #f97316); -webkit-background-clip: text; }
+        .stat-label { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; }
         
         .page { display: none; }
         .page.active { display: block; }
         
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .card-title {
-            font-size: 0.95rem;
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
-        }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
+        .card-title { font-size: 0.9rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-        th { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; }
-        
+        th { color: var(--muted); font-size: 0.6rem; text-transform: uppercase; }
         .code-cell { font-weight: 600; color: var(--accent); cursor: pointer; }
         
-        .status-badge {
-            display: inline-block;
-            padding: 0.15rem 0.4rem;
-            border-radius: 10px;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
+        .status { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 8px; font-size: 0.65rem; font-weight: 600; }
+        .status-recibido { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .status-en-proceso, .status-incubación, .status-lectura, .status-en-revisión { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .status-completado { background: rgba(34,197,94,0.2); color: #22c55e; }
+        .status-enviado { background: rgba(168,85,247,0.2); color: #a855f7; }
+        .status-cancelado { background: rgba(239,68,68,0.2); color: #ef4444; }
         
-        .status-recibido { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .status-en-proceso { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .status-completado { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .status-enviado { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        /* Overdue indicator with tooltip */
+        .overdue { color: var(--red); cursor: help; position: relative; }
+        .overdue:hover::after { content: 'Muestra atrasada - pasó fecha de entrega'; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.65rem; white-space: nowrap; z-index: 10; }
         
-        .overdue-tag {
-            font-size: 0.6rem;
-            color: #ef4444;
-            margin-left: 0.25rem;
-        }
-        
-        .btn {
-            padding: 0.5rem 0.875rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .btn-primary { background: var(--gradient); color: #000; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+        .btn { padding: 0.45rem 0.75rem; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; }
+        .btn-primary { background: linear-gradient(90deg, var(--accent), var(--green)); color: #000; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text); }
         .btn-sm { padding: 0.3rem 0.5rem; font-size: 0.7rem; }
         
         /* Scanner */
-        #reader {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-        }
+        #reader { width: 100%; max-width: 350px; margin: 0 auto; }
+        #reader video { border-radius: 8px !important; }
+        .scan-btns { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.5rem; }
+        .scan-status { text-align: center; padding: 0.5rem; color: var(--muted); font-size: 0.8rem; }
+        .scan-status.ok { color: var(--green); font-weight: 600; }
         
-        #reader video {
-            border-radius: 10px !important;
-        }
+        .search-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+        .search-row input { flex: 1; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; }
+        .search-row input:focus { outline: none; border-color: var(--accent); }
         
-        .scanner-btns {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            margin-bottom: 0.75rem;
-        }
-        
-        .scanner-status {
-            text-align: center;
-            padding: 0.75rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        
-        .scanner-status.success {
-            color: var(--accent-green);
-            font-weight: 600;
-        }
-        
-        .manual-input {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-        
-        .manual-input p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-        
-        .search-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .search-row input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        .search-row input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        
-        /* Result Card */
-        .result { display: none; margin-top: 1rem; }
+        /* Result */
+        .result { display: none; margin-top: 0.75rem; }
         .result.visible { display: block; }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .result-code { font-size: 1.1rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .field { padding: 0.4rem; background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .field .lbl { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; }
+        .field .val { font-size: 0.8rem; }
+        .field .val.hl { color: var(--accent); font-weight: 600; }
         
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
+        .status-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3rem; margin-top: 0.5rem; }
+        .status-btn { padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.65rem; }
+        .status-btn.active { border-color: var(--accent); background: rgba(0,217,255,0.2); color: var(--accent); }
         
-        .result-code {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        /* Generator */
+        .gen-form { display: grid; gap: 0.75rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .form-group label { display: block; font-size: 0.65rem; color: var(--muted); margin-bottom: 0.25rem; text-transform: uppercase; }
+        .form-group select, .form-group input { width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 6px; background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; }
+        .form-group select option { background: var(--bg2); }
         
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-        }
+        .label-preview { background: #fff; padding: 8px; border-radius: 6px; width: fit-content; margin: 0.75rem auto; }
+        .label-preview .lab { font-size: 7px; font-weight: bold; color: #000; text-align: center; }
+        .label-preview .dual { display: flex; align-items: center; gap: 8px; justify-content: center; }
+        .label-preview svg { max-width: 140px; height: 30px; }
+        .label-preview canvas { width: 45px !important; height: 45px !important; }
+        .label-preview .code { font-size: 9px; font-weight: bold; color: #000; text-align: center; margin-top: 2px; }
         
-        .result-field {
-            padding: 0.5rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-        }
+        .gen-result { display: none; text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .gen-result.visible { display: block; }
+        .gen-code { font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }
         
-        .result-field .label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
+        .empty { text-align: center; padding: 1.5rem; color: var(--muted); }
+        .empty .icon { font-size: 2rem; margin-bottom: 0.5rem; }
         
-        .result-field .value {
-            font-size: 0.85rem;
-        }
-        
-        .result-field .value.hl {
-            color: var(--accent);
-            font-weight: 600;
-        }
-        
-        .status-btns {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.4rem;
-            margin-top: 0.75rem;
-        }
-        
-        .status-btn {
-            padding: 0.4rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
-        
-        .status-btn.active {
-            border-color: var(--accent);
-            background: rgba(0, 217, 255, 0.2);
-            color: var(--accent);
-        }
-        
-        /* Print */
-        .print-area {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(0, 217, 255, 0.1);
-            border-radius: 10px;
-        }
-        
-        .print-area.visible { display: block; }
-        
-        .label-preview {
-            background: white;
-            padding: 6px;
-            border-radius: 6px;
-            width: fit-content;
-            margin: 0.5rem auto;
-        }
-        
-        .label-preview .header { font-size: 7px; font-weight: bold; color: #000; text-align: center; }
-        .label-preview .code { font-size: 8px; font-weight: bold; color: #000; text-align: center; margin-top: 2px; }
-        
-        .label-dual {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .label-dual svg { max-width: 120px; height: 25px; }
-        .label-dual canvas { width: 40px !important; height: 40px !important; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--text-muted);
-        }
-        
-        .empty-state .icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        
-        .toast {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            padding: 0.75rem 1rem;
-            background: #22c55e;
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        
-        .toast.error { background: #ef4444; }
+        .toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%) translateY(100px); padding: 0.6rem 1rem; background: var(--green); color: #000; border-radius: 6px; font-weight: 600; font-size: 0.8rem; opacity: 0; transition: all 0.3s; z-index: 1000; }
+        .toast.error { background: var(--red); color: #fff; }
         .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
         
+        .help-text { font-size: 0.7rem; color: var(--muted); margin-top: 0.5rem; }
+        
         @media (max-width: 500px) {
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .stats { grid-template-columns: repeat(2, 1fr); }
             .result-grid { grid-template-columns: 1fr; }
             .status-btns { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
         }
         
         @media print {
             body * { visibility: hidden; }
             .label-preview, .label-preview * { visibility: visible !important; }
-            .label-preview { position: absolute; left: 0; top: 0; }
+            .label-preview { position: absolute; left: 0; top: 0; margin: 0; }
         }
     </style>
 </head>
@@ -410,11 +140,12 @@
             <div class="logo">
                 <span>🧪</span>
                 <h1>LabTrack AI</h1>
-                <span class="data-badge demo" id="data-badge">Demo</span>
+                <span class="badge demo" id="badge">Demo</span>
             </div>
             <nav class="nav">
                 <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
-                <button class="nav-btn" data-page="inbox">📥 Nuevas <span class="badge" id="inbox-count">0</span></button>
+                <button class="nav-btn" data-page="inbox">🏷️ Etiquetas <span class="count" id="inbox-count">0</span></button>
+                <button class="nav-btn" data-page="generator">➕ Generar</button>
                 <button class="nav-btn" data-page="scanner">📷 Escanear</button>
                 <button class="nav-btn" data-page="search">🔍 Buscar</button>
             </nav>
@@ -422,46 +153,128 @@
     </header>
     
     <main class="main">
-        <div class="stats-row">
-            <div class="stat-card"><div class="stat-value" id="s-total">0</div><div class="stat-label">Total</div></div>
-            <div class="stat-card"><div class="stat-value" id="s-process">0</div><div class="stat-label">En Proceso</div></div>
-            <div class="stat-card"><div class="stat-value warning" id="s-overdue">0</div><div class="stat-label">Atrasadas</div></div>
-            <div class="stat-card"><div class="stat-value" id="s-done">0</div><div class="stat-label">Completadas</div></div>
+        <!-- Clickable Stats -->
+        <div class="stats">
+            <div class="stat" onclick="filterBy('all')" id="stat-all">
+                <div class="stat-val" id="s-total">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat" onclick="filterBy('proceso')" id="stat-proceso">
+                <div class="stat-val" id="s-proceso">0</div>
+                <div class="stat-label">En Proceso</div>
+            </div>
+            <div class="stat" onclick="filterBy('atrasadas')" id="stat-atrasadas">
+                <div class="stat-val warn" id="s-atrasadas">0</div>
+                <div class="stat-label">Atrasadas</div>
+            </div>
+            <div class="stat" onclick="filterBy('completadas')" id="stat-completadas">
+                <div class="stat-val" id="s-completadas">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
         </div>
         
         <!-- Dashboard -->
         <div class="page active" id="page-dashboard">
             <div class="card">
-                <h2 class="card-title">📋 Muestras</h2>
-                <table>
-                    <thead><tr><th>Código</th><th>Área</th><th>Cliente</th><th>Estado</th></tr></thead>
-                    <tbody id="table-body"></tbody>
-                </table>
+                <div class="card-title">
+                    <span>📋 Muestras <span id="filter-label"></span></span>
+                    <button class="btn btn-sm btn-secondary" onclick="filterBy('all')">Ver todas</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead><tr><th>Código</th><th>Área</th><th>Cliente</th><th>Estado</th></tr></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                <p class="help-text">⚠️ = Muestra atrasada (pasó fecha de entrega). Clic en código para ver detalles.</p>
             </div>
         </div>
         
-        <!-- Inbox -->
+        <!-- Inbox / Labels Pending -->
         <div class="page" id="page-inbox">
             <div class="card">
-                <h2 class="card-title">📥 Nuevas - Etiquetas Pendientes</h2>
-                <table>
-                    <thead><tr><th>Código</th><th>Área</th><th>Cliente</th><th></th></tr></thead>
-                    <tbody id="inbox-body"></tbody>
-                </table>
+                <div class="card-title">🏷️ Etiquetas Pendientes de Impresión</div>
+                <p class="help-text" style="margin-bottom: 0.75rem;">Muestras con estado "Recibido" que necesitan etiqueta:</p>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead><tr><th>Código</th><th>Área</th><th>Cliente</th><th>Acción</th></tr></thead>
+                        <tbody id="inbox-body"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="print-area" id="print-area">
-                <div style="text-align: center; margin-bottom: 0.5rem; font-size: 0.85rem;">🏷️ Etiqueta</div>
+            
+            <!-- Print Preview -->
+            <div class="card" id="print-card" style="display: none;">
+                <div class="card-title">🖨️ Vista Previa de Etiqueta</div>
                 <div class="label-preview">
-                    <div class="header">SAFER AGROBIOLÓGICOS</div>
-                    <div class="label-dual">
-                        <svg id="print-barcode"></svg>
+                    <div class="lab">SAFER AGROBIOLÓGICOS</div>
+                    <div class="dual">
+                        <svg id="print-bc"></svg>
                         <canvas id="print-qr"></canvas>
                     </div>
                     <div class="code" id="print-code">-</div>
                 </div>
                 <div style="text-align: center; margin-top: 0.75rem;">
-                    <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
-                    <button class="btn btn-secondary btn-sm" onclick="closePrint()">Cerrar</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary" onclick="closePrint()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Generator (NEW - All in one) -->
+        <div class="page" id="page-generator">
+            <div class="card">
+                <div class="card-title">➕ Generar Nueva Etiqueta</div>
+                <div class="gen-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Área del Laboratorio</label>
+                            <select id="gen-area">
+                                <option value="MIC">Microbiología (MIC)</option>
+                                <option value="NEM">Nematología (NEM)</option>
+                                <option value="FIT">Fitopatología (FIT)</option>
+                                <option value="ENT">Entomología (ENT)</option>
+                                <option value="MCR">Micorrizas (MCR)</option>
+                                <option value="PRB">Pruebas (PRB)</option>
+                                <option value="AGL">Agrilab (AGL)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Muestra</label>
+                            <input type="number" id="gen-num" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Año</label>
+                            <input type="number" id="gen-year" value="2025">
+                        </div>
+                        <div class="form-group">
+                            <label>Formato</label>
+                            <select id="gen-format">
+                                <option value="both">Barcode + QR (Recomendado)</option>
+                                <option value="barcode">Solo Barcode</option>
+                                <option value="qr">Solo QR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateLabel()">🏷️ Generar Etiqueta</button>
+                </div>
+                
+                <div class="gen-result" id="gen-result">
+                    <div class="gen-code" id="gen-full-code">-</div>
+                    <div class="label-preview">
+                        <div class="lab">SAFER AGROBIOLÓGICOS</div>
+                        <div class="dual" id="gen-dual">
+                            <svg id="gen-bc"></svg>
+                            <canvas id="gen-qr"></canvas>
+                        </div>
+                        <div class="code" id="gen-label-code">-</div>
+                    </div>
+                    <div style="margin-top: 0.75rem;">
+                        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+                        <button class="btn btn-secondary" onclick="nextLabel()">➡️ Siguiente</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -469,39 +282,36 @@
         <!-- Scanner -->
         <div class="page" id="page-scanner">
             <div class="card">
-                <h2 class="card-title">📷 Escanear Código QR</h2>
-                <div class="scanner-btns">
+                <div class="card-title">📷 Escanear Código</div>
+                <div class="scan-btns">
                     <button class="btn btn-primary" id="btn-start" onclick="startScan()">📷 Iniciar</button>
                     <button class="btn btn-secondary" id="btn-stop" onclick="stopScan()" disabled>⏹️ Detener</button>
                 </div>
                 <div id="reader"></div>
-                <p class="scanner-status" id="scan-status">Presiona "Iniciar" para escanear código QR</p>
+                <p class="scan-status" id="scan-status">Presiona "Iniciar" para escanear QR o barcode</p>
                 
-                <div class="manual-input">
-                    <p>¿No funciona? Ingresa el código manualmente:</p>
-                    <div class="search-row">
-                        <input type="text" id="manual-input" placeholder="Ej: MIC-1 o SAFER-MIC-1-2025">
-                        <button class="btn btn-primary" onclick="manualSearch('scan')">Buscar</button>
-                    </div>
+                <div class="search-row">
+                    <input type="text" id="manual-input" placeholder="O ingresa código: MIC-1">
+                    <button class="btn btn-primary" onclick="manualLookup()">Buscar</button>
                 </div>
             </div>
             
             <div class="card result" id="scan-result">
                 <div class="result-header">
                     <span class="result-code" id="scan-code">-</span>
-                    <span class="status-badge" id="scan-badge">-</span>
+                    <span class="status" id="scan-badge">-</span>
                 </div>
                 <div class="result-grid" id="scan-grid"></div>
-                <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">Actualizar Estado:</div>
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--muted);">Actualizar Estado:</div>
                 <div class="status-btns" id="scan-btns"></div>
-                <button class="btn btn-secondary" style="width: 100%; margin-top: 0.75rem;" onclick="resetScan()">🔍 Escanear otra</button>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="resetScan()">🔍 Escanear otra</button>
             </div>
         </div>
         
         <!-- Search -->
         <div class="page" id="page-search">
             <div class="card">
-                <h2 class="card-title">🔍 Buscar Muestra</h2>
+                <div class="card-title">🔍 Buscar Muestra</div>
                 <div class="search-row">
                     <input type="text" id="search-input" placeholder="Código (ej: MIC-1)" onkeypress="if(event.key==='Enter')doSearch()">
                     <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
@@ -511,10 +321,10 @@
             <div class="card result" id="search-result">
                 <div class="result-header">
                     <span class="result-code" id="search-code">-</span>
-                    <span class="status-badge" id="search-badge">-</span>
+                    <span class="status" id="search-badge">-</span>
                 </div>
                 <div class="result-grid" id="search-grid"></div>
-                <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">Actualizar Estado:</div>
+                <div style="margin-top: 0.5rem; font-size: 0.7rem; color: var(--muted);">Actualizar Estado:</div>
                 <div class="status-btns" id="search-btns"></div>
             </div>
         </div>
@@ -523,27 +333,25 @@
     <div class="toast" id="toast"></div>
     
     <script>
-        // ========== DEMO DATA ==========
-        // This data is used when API is unavailable (CORS blocked)
-        const DEMO_SAMPLES = [
-            { codigo_interno: "MIC-1", barcode: "SAFER-MIC-1-2025", lab_area: "Microbiología", Status: "En Proceso", sample_type: "Raíz", cultivo: "Rosa", finca: "Finca la Esperanza", fecha_ingreso: "2025-11-20", fecha_estimada_entrega: "2025-11-27", esta_atrasado: 1, "name (from client)": ["Diego Rivera"], "Name (from technician)": ["Leidy"] },
-            { codigo_interno: "NEM-2", barcode: "SAFER-NEM-2-2025", lab_area: "Nematología", Status: "Recibido", sample_type: "Suelo", cultivo: "Clavel", fecha_ingreso: "2025-11-25", fecha_estimada_entrega: "2025-12-02", esta_atrasado: 0, "name (from client)": ["De la Luna"] },
-            { codigo_interno: "FIT-3", barcode: "SAFER-FIT-3-2025", lab_area: "Fitopatología", Status: "Completado", sample_type: "Hoja", cultivo: "Aguacate", fecha_ingreso: "2025-11-15", fecha_estimada_entrega: "2025-11-22", esta_atrasado: 1 },
-            { codigo_interno: "NEM-4", barcode: "SAFER-NEM-4-2025", lab_area: "Nematología", Status: "Recibido", sample_type: "Flor", cultivo: "Flor", fecha_ingreso: "2025-11-28", fecha_estimada_entrega: "2025-12-05", esta_atrasado: 0 }
-        ];
+        // ========== CONFIG ==========
+        const API_URL = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
+        
+        // Statuses - MUST MATCH AIRTABLE EXACTLY
+        const STATUSES = ['Recibido', 'En Proceso', 'Incubación', 'Lectura', 'En Revisión', 'Completado', 'Enviado', 'Cancelado'];
         
         // ========== STATE ==========
-        let samples = [...DEMO_SAMPLES];
+        let samples = [];
         let currentSample = null;
+        let currentFilter = 'all';
         let html5QrCode = null;
         
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
             setupNav();
-            tryLoadAPI();
+            loadData();
         });
         
-        // ========== NAVIGATION ==========
+        // ========== NAV ==========
         function setupNav() {
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.onclick = () => {
@@ -551,88 +359,187 @@
                     btn.classList.add('active');
                     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                     document.getElementById('page-' + btn.dataset.page).classList.add('active');
-                    
                     if (btn.dataset.page === 'search') document.getElementById('search-input').focus();
                     if (btn.dataset.page !== 'scanner') stopScan();
                 };
             });
         }
         
-        // ========== API ==========
-        async function tryLoadAPI() {
-            const badge = document.getElementById('data-badge');
-            badge.textContent = 'Cargando...';
-            badge.className = 'data-badge';
-            
+        // ========== DATA ==========
+        async function loadData() {
+            const badge = document.getElementById('badge');
             try {
-                const response = await fetch('https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em');
-                const text = await response.text();
-                const data = JSON.parse(text);
-                
+                const res = await fetch(API_URL);
+                const data = await res.json();
                 if (data.samples && Array.isArray(data.samples) && data.samples.length > 0) {
                     samples = data.samples;
-                    badge.textContent = `${samples.length} API`;
-                    badge.className = 'data-badge success';
-                } else {
-                    throw new Error('No samples');
-                }
+                    badge.textContent = samples.length + ' Live';
+                    badge.className = 'badge live';
+                } else throw new Error('No data');
             } catch (e) {
-                console.log('API unavailable, using demo data:', e.message);
-                samples = [...DEMO_SAMPLES];
-                badge.textContent = `${samples.length} Demo`;
-                badge.className = 'data-badge demo';
+                console.log('API unavailable:', e.message);
+                // Demo data matching Airtable
+                samples = [
+                    { codigo_interno: "MIC-1", barcode: "SAFER-MIC-1-2025", lab_area: "Microbiología", Status: "En Revisión", sample_type: "Raíz", cultivo: "Rosa", finca: "Finca la Esperanza", fecha_ingreso: "2025-11-20", fecha_estimada_entrega: "2025-11-27", esta_atrasado: 1, "name (from client)": ["Diego Rivera"], "Name (from technician)": ["Leidy"] },
+                    { codigo_interno: "NEM-2", barcode: "SAFER-NEM-2-2025", lab_area: "Nematología", Status: "Recibido", sample_type: "Suelo", cultivo: "Clavel", fecha_ingreso: "2025-11-25", fecha_estimada_entrega: "2025-12-02", esta_atrasado: 0, "name (from client)": ["De la Luna"] },
+                    { codigo_interno: "FIT-3", barcode: "SAFER-FIT-3-2025", lab_area: "Fitopatología", Status: "Completado", sample_type: "Hoja", cultivo: "Aguacate", fecha_ingreso: "2025-11-15", fecha_estimada_entrega: "2025-11-22", esta_atrasado: 0 },
+                    { codigo_interno: "NEM-4", barcode: "SAFER-NEM-4-2025", lab_area: "Nematología", Status: "Recibido", sample_type: "Flor", cultivo: "Flor", fecha_ingreso: "2025-11-28", fecha_estimada_entrega: "2025-12-05", esta_atrasado: 0 }
+                ];
+                badge.textContent = samples.length + ' Demo';
+                badge.className = 'badge demo';
             }
-            
             updateUI();
         }
         
-        // ========== UI UPDATE ==========
         function updateUI() {
             // Stats
-            document.getElementById('s-total').textContent = samples.length;
-            document.getElementById('s-process').textContent = samples.filter(s => ['En Proceso', 'Incubación', 'Lectura'].includes(s.Status)).length;
-            document.getElementById('s-overdue').textContent = samples.filter(s => s.esta_atrasado == 1).length;
-            document.getElementById('s-done').textContent = samples.filter(s => ['Completado', 'Enviado'].includes(s.Status)).length;
-            document.getElementById('inbox-count').textContent = samples.filter(s => s.Status === 'Recibido').length;
+            const total = samples.length;
+            const proceso = samples.filter(s => ['En Proceso', 'Incubación', 'Lectura', 'En Revisión'].includes(s.Status)).length;
+            const atrasadas = samples.filter(s => s.esta_atrasado == 1).length;
+            const completadas = samples.filter(s => ['Completado', 'Enviado'].includes(s.Status)).length;
+            const recibido = samples.filter(s => s.Status === 'Recibido').length;
             
-            // Table
+            document.getElementById('s-total').textContent = total;
+            document.getElementById('s-proceso').textContent = proceso;
+            document.getElementById('s-atrasadas').textContent = atrasadas;
+            document.getElementById('s-completadas').textContent = completadas;
+            document.getElementById('inbox-count').textContent = recibido;
+            
+            // Highlight active stat
+            document.querySelectorAll('.stat').forEach(s => s.classList.remove('active'));
+            document.getElementById('stat-' + (currentFilter === 'all' ? 'all' : currentFilter)).classList.add('active');
+            
+            renderTable();
+            renderInbox();
+        }
+        
+        function renderTable() {
             const tbody = document.getElementById('table-body');
-            tbody.innerHTML = samples.length ? samples.map(s => `
+            let filtered = samples;
+            let label = '';
+            
+            if (currentFilter === 'proceso') {
+                filtered = samples.filter(s => ['En Proceso', 'Incubación', 'Lectura', 'En Revisión'].includes(s.Status));
+                label = '(En Proceso)';
+            } else if (currentFilter === 'atrasadas') {
+                filtered = samples.filter(s => s.esta_atrasado == 1);
+                label = '(Atrasadas)';
+            } else if (currentFilter === 'completadas') {
+                filtered = samples.filter(s => ['Completado', 'Enviado'].includes(s.Status));
+                label = '(Completadas)';
+            }
+            
+            document.getElementById('filter-label').textContent = label;
+            
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="icon">📭</div><p>Sin muestras</p></div></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(s => `
                 <tr onclick="viewSample('${s.codigo_interno}')">
-                    <td class="code-cell">${s.codigo_interno}${s.esta_atrasado == 1 ? '<span class="overdue-tag">⚠️</span>' : ''}</td>
+                    <td class="code-cell">${s.codigo_interno}${s.esta_atrasado == 1 ? ' <span class="overdue" title="Muestra atrasada">⚠️</span>' : ''}</td>
                     <td>${s.lab_area || '-'}</td>
                     <td>${getClient(s)}</td>
-                    <td><span class="status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}">${s.Status || '-'}</span></td>
+                    <td><span class="status status-${statusClass(s.Status)}">${s.Status || '-'}</span></td>
                 </tr>
-            `).join('') : '<tr><td colspan="4"><div class="empty-state"><div class="icon">📭</div><p>Sin muestras</p></div></td></tr>';
+            `).join('');
+        }
+        
+        function renderInbox() {
+            const tbody = document.getElementById('inbox-body');
+            const pending = samples.filter(s => s.Status === 'Recibido');
             
-            // Inbox
-            const inbox = document.getElementById('inbox-body');
-            const newSamples = samples.filter(s => s.Status === 'Recibido');
-            inbox.innerHTML = newSamples.length ? newSamples.map(s => `
+            if (!pending.length) {
+                tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="icon">✅</div><p>Todas las muestras tienen etiqueta</p></div></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = pending.map(s => `
                 <tr>
                     <td class="code-cell">${s.codigo_interno}</td>
                     <td>${s.lab_area || '-'}</td>
                     <td>${getClient(s)}</td>
-                    <td><button class="btn btn-primary btn-sm" onclick="showPrint('${s.barcode}', '${s.codigo_interno}')">🏷️</button></td>
+                    <td><button class="btn btn-primary btn-sm" onclick="showPrint('${s.barcode}', '${s.codigo_interno}')">🏷️ Imprimir</button></td>
                 </tr>
-            `).join('') : '<tr><td colspan="4"><div class="empty-state"><div class="icon">✅</div><p>Sin pendientes</p></div></td></tr>';
+            `).join('');
         }
         
+        function filterBy(filter) {
+            currentFilter = filter;
+            updateUI();
+            // Switch to dashboard
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-page="dashboard"]').classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-dashboard').classList.add('active');
+        }
+        
+        // ========== HELPERS ==========
         function getClient(s) { return (s['name (from client)'] && s['name (from client)'][0]) || '-'; }
         function getTech(s) { return (s['Name (from technician)'] && s['Name (from technician)'][0]) || '-'; }
         function formatDate(d) { return d ? new Date(d).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }) : '-'; }
+        function statusClass(s) { return (s || '').toLowerCase().replace(/ /g, '-').replace(/ó/g, 'o').replace(/á/g, 'a'); }
+        
+        // ========== GENERATOR ==========
+        function generateLabel() {
+            const area = document.getElementById('gen-area').value;
+            const num = document.getElementById('gen-num').value;
+            const year = document.getElementById('gen-year').value;
+            const format = document.getElementById('gen-format').value;
+            
+            const codigo = `${area}-${num}`;
+            const barcode = `SAFER-${area}-${num}-${year}`;
+            
+            document.getElementById('gen-full-code').textContent = barcode;
+            document.getElementById('gen-label-code').textContent = codigo;
+            
+            const dual = document.getElementById('gen-dual');
+            const bcEl = document.getElementById('gen-bc');
+            const qrEl = document.getElementById('gen-qr');
+            
+            // Reset visibility
+            bcEl.style.display = 'none';
+            qrEl.style.display = 'none';
+            
+            if (format === 'barcode' || format === 'both') {
+                JsBarcode("#gen-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
+                bcEl.style.display = 'block';
+            }
+            
+            if (format === 'qr' || format === 'both') {
+                QRCode.toCanvas(qrEl, barcode, { width: 45, margin: 0 });
+                qrEl.style.display = 'block';
+            }
+            
+            document.getElementById('gen-result').classList.add('visible');
+            toast('✅ Etiqueta generada');
+        }
+        
+        function nextLabel() {
+            document.getElementById('gen-num').value = parseInt(document.getElementById('gen-num').value) + 1;
+            generateLabel();
+        }
+        
+        // ========== PRINT ==========
+        function showPrint(barcode, code) {
+            document.getElementById('print-code').textContent = code;
+            JsBarcode("#print-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
+            QRCode.toCanvas(document.getElementById('print-qr'), barcode, { width: 45, margin: 0 });
+            document.getElementById('print-card').style.display = 'block';
+        }
+        
+        function closePrint() {
+            document.getElementById('print-card').style.display = 'none';
+        }
         
         // ========== SCANNER ==========
         function startScan() {
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(
                 { facingMode: "environment" },
-                config,
+                { fps: 10, qrbox: { width: 250, height: 150 }, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128] },
                 (text) => {
-                    console.log('Scanned:', text);
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     stopScan();
                     findSample(text, 'scan');
@@ -641,16 +548,14 @@
             ).then(() => {
                 document.getElementById('btn-start').disabled = true;
                 document.getElementById('btn-stop').disabled = false;
-                document.getElementById('scan-status').textContent = '📷 Apunta al código QR...';
+                document.getElementById('scan-status').textContent = '📷 Apunta al código...';
             }).catch(err => {
                 document.getElementById('scan-status').textContent = '❌ ' + err;
             });
         }
         
         function stopScan() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop();
-            }
+            if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
             document.getElementById('btn-start').disabled = false;
             document.getElementById('btn-stop').disabled = true;
         }
@@ -659,12 +564,12 @@
             document.getElementById('scan-result').classList.remove('visible');
             document.getElementById('manual-input').value = '';
             document.getElementById('scan-status').textContent = 'Presiona "Iniciar" para escanear';
-            document.getElementById('scan-status').classList.remove('success');
+            document.getElementById('scan-status').classList.remove('ok');
         }
         
-        function manualSearch(target) {
+        function manualLookup() {
             const input = document.getElementById('manual-input').value.trim();
-            if (input) findSample(input, target);
+            if (input) findSample(input, 'scan');
         }
         
         // ========== SEARCH ==========
@@ -675,69 +580,61 @@
         
         function viewSample(code) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.nav-btn')[3].classList.add('active');
+            document.querySelector('[data-page="search"]').classList.add('active');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-search').classList.add('active');
             document.getElementById('search-input').value = code;
             findSample(code, 'search');
         }
         
-        // ========== FIND SAMPLE ==========
+        // ========== FIND ==========
         function findSample(query, target) {
             const q = query.toUpperCase().trim();
             
             const found = samples.find(s => {
                 const code = (s.codigo_interno || '').toUpperCase();
-                const barcode = (s.barcode || '').toUpperCase();
-                
-                if (code === q || barcode === q) return true;
+                const bc = (s.barcode || '').toUpperCase();
+                if (code === q || bc === q) return true;
                 if (q.includes(code) && code.length > 2) return true;
-                if (barcode.includes(q)) return true;
-                
-                // Extract from SAFER-MIC-1-2025
+                if (bc.includes(q)) return true;
                 if (q.startsWith('SAFER-')) {
                     const parts = q.split('-');
                     if (parts.length >= 3 && code === parts[1] + '-' + parts[2]) return true;
                 }
-                
                 return false;
             });
             
             if (found) {
                 currentSample = found;
                 showResult(found, target);
-                
                 if (target === 'scan') {
                     document.getElementById('scan-status').textContent = '✅ ¡Encontrado!';
-                    document.getElementById('scan-status').classList.add('success');
+                    document.getElementById('scan-status').classList.add('ok');
                 }
-                
-                toast(`✅ ${found.codigo_interno}`);
+                toast('✅ ' + found.codigo_interno);
             } else {
                 showNotFound(query, target);
             }
         }
         
         function showResult(s, target) {
-            document.getElementById(`${target}-code`).textContent = s.codigo_interno;
-            
+            document.getElementById(`${target}-code`).textContent = s.codigo_interno + (s.esta_atrasado == 1 ? ' ⚠️' : '');
             const badge = document.getElementById(`${target}-badge`);
             badge.textContent = s.Status || '-';
-            badge.className = `status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}`;
+            badge.className = `status status-${statusClass(s.Status)}`;
             
             document.getElementById(`${target}-grid`).innerHTML = `
-                <div class="result-field"><div class="label">Barcode</div><div class="value">${s.barcode}</div></div>
-                <div class="result-field"><div class="label">Área</div><div class="value hl">${s.lab_area}</div></div>
-                <div class="result-field"><div class="label">Cliente</div><div class="value">${getClient(s)}</div></div>
-                <div class="result-field"><div class="label">Técnico</div><div class="value">${getTech(s)}</div></div>
-                <div class="result-field"><div class="label">Tipo</div><div class="value">${s.sample_type || '-'}</div></div>
-                <div class="result-field"><div class="label">Cultivo</div><div class="value">${s.cultivo || '-'}</div></div>
-                <div class="result-field"><div class="label">Ingreso</div><div class="value">${formatDate(s.fecha_ingreso)}</div></div>
-                <div class="result-field"><div class="label">Entrega</div><div class="value">${formatDate(s.fecha_estimada_entrega)}</div></div>
+                <div class="field"><div class="lbl">Barcode</div><div class="val">${s.barcode}</div></div>
+                <div class="field"><div class="lbl">Área</div><div class="val hl">${s.lab_area}</div></div>
+                <div class="field"><div class="lbl">Cliente</div><div class="val">${getClient(s)}</div></div>
+                <div class="field"><div class="lbl">Técnico</div><div class="val">${getTech(s)}</div></div>
+                <div class="field"><div class="lbl">Tipo</div><div class="val">${s.sample_type || '-'}</div></div>
+                <div class="field"><div class="lbl">Cultivo</div><div class="val">${s.cultivo || '-'}</div></div>
+                <div class="field"><div class="lbl">Ingreso</div><div class="val">${formatDate(s.fecha_ingreso)}</div></div>
+                <div class="field"><div class="lbl">Entrega</div><div class="val">${formatDate(s.fecha_estimada_entrega)}</div></div>
             `;
             
-            const statuses = ['Recibido', 'En Proceso', 'Lectura', 'Completado', 'Enviado'];
-            document.getElementById(`${target}-btns`).innerHTML = statuses.map(st => 
+            document.getElementById(`${target}-btns`).innerHTML = STATUSES.map(st => 
                 `<button class="status-btn ${s.Status === st ? 'active' : ''}" onclick="updateStatus('${st}')">${st}</button>`
             ).join('');
             
@@ -747,16 +644,8 @@
         function showNotFound(query, target) {
             document.getElementById(`${target}-result`).classList.add('visible');
             document.getElementById(`${target}-code`).textContent = '❌ No encontrado';
-            document.getElementById(`${target}-badge`).className = 'status-badge';
             document.getElementById(`${target}-badge`).textContent = '';
-            document.getElementById(`${target}-grid`).innerHTML = `
-                <div class="empty-state" style="grid-column: span 2;">
-                    <p><strong>Buscaste:</strong> ${query}</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.8rem;">
-                        Códigos disponibles: ${samples.map(s => s.codigo_interno).join(', ')}
-                    </p>
-                </div>
-            `;
+            document.getElementById(`${target}-grid`).innerHTML = `<div class="empty" style="grid-column: span 2;"><p><strong>Buscaste:</strong> ${query}</p><p style="margin-top: 0.5rem; font-size: 0.75rem;">Códigos: ${samples.map(s => s.codigo_interno).join(', ')}</p></div>`;
             document.getElementById(`${target}-btns`).innerHTML = '';
             toast('No encontrado', true);
         }
@@ -764,14 +653,18 @@
         function updateStatus(newStatus) {
             if (!currentSample) return;
             
+            // Update local
             const idx = samples.findIndex(s => s.codigo_interno === currentSample.codigo_interno);
             if (idx > -1) samples[idx].Status = newStatus;
             currentSample.Status = newStatus;
             
-            updateUI();
-            toast(`✅ ${currentSample.codigo_interno} → ${newStatus}`);
+            // Note: This does NOT sync to Airtable automatically
+            // Would need a Make.com webhook for that
             
-            // Refresh view
+            updateUI();
+            toast('✅ ' + currentSample.codigo_interno + ' → ' + newStatus);
+            
+            // Refresh views
             ['scan', 'search'].forEach(t => {
                 if (document.getElementById(`${t}-result`).classList.contains('visible')) {
                     showResult(currentSample, t);
@@ -779,31 +672,12 @@
             });
         }
         
-        // ========== PRINT ==========
-        function showPrint(barcode, code) {
-            document.getElementById('print-code').textContent = code;
-            
-            JsBarcode("#print-barcode", barcode, {
-                format: "CODE128", width: 1.2, height: 20, displayValue: false, margin: 0
-            });
-            
-            QRCode.toCanvas(document.getElementById('print-qr'), barcode, {
-                width: 40, margin: 0
-            });
-            
-            document.getElementById('print-area').classList.add('visible');
-        }
-        
-        function closePrint() {
-            document.getElementById('print-area').classList.remove('visible');
-        }
-        
         // ========== TOAST ==========
         function toast(msg, isError = false) {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.className = `toast visible ${isError ? 'error' : ''}`;
-            setTimeout(() => el.classList.remove('visible'), 3000);
+            setTimeout(() => el.classList.remove('visible'), 2500);
         }
     </script>
 </body>

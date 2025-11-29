@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabTrack AI - Generador de Códigos de Barras</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+        
+        select option {
+            background: #1a1a2e;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            margin-top: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .barcode-output {
+            text-align: center;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+        }
+        
+        .barcode-output svg {
+            max-width: 100%;
+        }
+        
+        .barcode-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .barcode-info p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .barcode-info strong {
+            color: #00d9ff;
+        }
+        
+        .label-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 8px;
+            color: #000;
+            width: 2in;
+            height: 1in;
+            margin: 1rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .label-preview .lab-name {
+            font-size: 8px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .label-preview svg {
+            max-width: 100%;
+            height: 40px;
+        }
+        
+        .label-preview .code-text {
+            font-size: 9px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+        
+        .batch-list {
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .batch-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .label-preview {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="no-print">
+            <h1>🧪 LabTrack AI</h1>
+            <p class="subtitle">Generador de Códigos de Barras para Laboratorio</p>
+        </header>
+        
+        <div class="stats no-print">
+            <div class="stat-card">
+                <div class="stat-number" id="todayCount">0</div>
+                <div class="stat-label">Generados Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sessionCount">0</div>
+                <div class="stat-label">Esta Sesión</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastCode">---</div>
+                <div class="stat-label">Último Código</div>
+            </div>
+        </div>
+        
+        <div class="card no-print">
+            <h2 style="margin-bottom: 1rem; font-size: 1.1rem;">Nueva Muestra</h2>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Área del Laboratorio</label>
+                    <select id="labArea">
+                        <option value="MIC">Microbiología</option>
+                        <option value="NEM">Nematología</option>
+                        <option value="FIT">Fitopatología</option>
+                        <option value="ENT">Entomología</option>
+                        <option value="MCR">Micorrizas</option>
+                        <option value="PRB">Pruebas</option>
+                        <option value="AGL">Agrilab</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Número de Muestra</label>
+                    <input type="number" id="sampleNumber" placeholder="Ej: 2630" min="1">
+                </div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Cliente (Opcional)</label>
+                    <input type="text" id="clientName" placeholder="Nombre del cliente">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de Muestra</label>
+                    <select id="sampleType">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Suelo">Suelo</option>
+                        <option value="Raíz">Raíz</option>
+                        <option value="Hoja">Hoja</option>
+                        <option value="Tallo">Tallo</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Sustrato">Sustrato</option>
+                        <option value="Insecto">Insecto</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="generateBarcode()">
+                🏷️ Generar Código de Barras
+            </button>
+        </div>
+        
+        <div class="card" id="outputCard" style="display: none;">
+            <h2 style="margin-bottom: 1rem; font-size: 1.1rem; color: #00ff88;">✅ Código Generado</h2>
+            
+            <!-- Full size barcode -->
+            <div class="barcode-output">
+                <svg id="barcode"></svg>
+            </div>
+            
+            <!-- Label preview (actual print size) -->
+            <p class="no-print" style="text-align: center; margin-top: 1rem; color: #888; font-size: 0.8rem;">
+                Vista previa de etiqueta (2" x 1"):
+            </p>
+            <div class="label-preview" id="labelPreview">
+                <div class="lab-name">SAFER AGROBIOLÓGICOS</div>
+                <svg id="barcodeSmall"></svg>
+                <div class="code-text" id="labelCode"></div>
+            </div>
+            
+            <div class="barcode-info no-print">
+                <p><strong>Código:</strong> <span id="fullCode"></span></p>
+                <p><strong>Área:</strong> <span id="areaName"></span></p>
+                <p><strong>Cliente:</strong> <span id="clientDisplay"></span></p>
+                <p><strong>Generado:</strong> <span id="timestamp"></span></p>
+            </div>
+            
+            <div class="grid-2 no-print" style="margin-top: 1rem;">
+                <button class="btn-primary" onclick="printLabel()">
+                    🖨️ Imprimir Etiqueta
+                </button>
+                <button class="btn-secondary" onclick="copyCode()">
+                    📋 Copiar Código
+                </button>
+            </div>
+        </div>
+        
+        <!-- Batch generation -->
+        <div class="card no-print">
+            <h2 style="margin-bottom: 1rem; font-size: 1.1rem;">📦 Generación por Lote</h2>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Desde Número</label>
+                    <input type="number" id="batchStart" placeholder="Ej: 2630" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Hasta Número</label>
+                    <input type="number" id="batchEnd" placeholder="Ej: 2640" min="1">
+                </div>
+            </div>
+            
+            <button class="btn-secondary" onclick="generateBatch()">
+                Generar Lote
+            </button>
+            
+            <div class="batch-list" id="batchList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let sessionCount = 0;
+        let todayCount = parseInt(localStorage.getItem('todayCount') || '0');
+        const today = new Date().toDateString();
+        
+        // Reset daily count if new day
+        if (localStorage.getItem('countDate') !== today) {
+            todayCount = 0;
+            localStorage.setItem('countDate', today);
+        }
+        
+        // Update stats display
+        function updateStats(code) {
+            sessionCount++;
+            todayCount++;
+            localStorage.setItem('todayCount', todayCount);
+            
+            document.getElementById('sessionCount').textContent = sessionCount;
+            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('lastCode').textContent = code.split('-')[1] || code;
+        }
+        
+        // Get area full name
+        function getAreaName(code) {
+            const areas = {
+                'MIC': 'Microbiología',
+                'NEM': 'Nematología',
+                'FIT': 'Fitopatología',
+                'ENT': 'Entomología',
+                'MCR': 'Micorrizas',
+                'PRB': 'Pruebas',
+                'AGL': 'Agrilab'
+            };
+            return areas[code] || code;
+        }
+        
+        // Generate barcode
+        function generateBarcode() {
+            const labArea = document.getElementById('labArea').value;
+            const sampleNumber = document.getElementById('sampleNumber').value;
+            const clientName = document.getElementById('clientName').value;
+            const sampleType = document.getElementById('sampleType').value;
+            
+            if (!sampleNumber) {
+                alert('Por favor ingrese el número de muestra');
+                return;
+            }
+            
+            const year = new Date().getFullYear();
+            const codigoInterno = `${labArea}-${sampleNumber}`;
+            const fullBarcode = `SAFER-${codigoInterno}-${year}`;
+            
+            // Generate main barcode
+            JsBarcode("#barcode", fullBarcode, {
+                format: "CODE128",
+                width: 2,
+                height: 80,
+                displayValue: true,
+                fontSize: 16,
+                margin: 10
+            });
+            
+            // Generate small barcode for label
+            JsBarcode("#barcodeSmall", fullBarcode, {
+                format: "CODE128",
+                width: 1.5,
+                height: 30,
+                displayValue: false,
+                margin: 0
+            });
+            
+            // Update displays
+            document.getElementById('labelCode').textContent = codigoInterno;
+            document.getElementById('fullCode').textContent = fullBarcode;
+            document.getElementById('areaName').textContent = getAreaName(labArea);
+            document.getElementById('clientDisplay').textContent = clientName || 'No especificado';
+            document.getElementById('timestamp').textContent = new Date().toLocaleString('es-CO');
+            
+            // Show output
+            document.getElementById('outputCard').style.display = 'block';
+            
+            // Update stats
+            updateStats(codigoInterno);
+            
+            // Scroll to output
+            document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Print label
+        function printLabel() {
+            window.print();
+        }
+        
+        // Copy code to clipboard
+        function copyCode() {
+            const code = document.getElementById('fullCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Código copiado: ' + code);
+            });
+        }
+        
+        // Generate batch
+        function generateBatch() {
+            const start = parseInt(document.getElementById('batchStart').value);
+            const end = parseInt(document.getElementById('batchEnd').value);
+            const labArea = document.getElementById('labArea').value;
+            
+            if (!start || !end || start > end) {
+                alert('Por favor ingrese un rango válido');
+                return;
+            }
+            
+            if (end - start > 50) {
+                alert('Máximo 50 códigos por lote');
+                return;
+            }
+            
+            const year = new Date().getFullYear();
+            const batchList = document.getElementById('batchList');
+            batchList.innerHTML = '';
+            
+            for (let i = start; i <= end; i++) {
+                const code = `SAFER-${labArea}-${i}-${year}`;
+                const div = document.createElement('div');
+                div.className = 'batch-item';
+                div.innerHTML = `
+                    <span>${labArea}-${i}</span>
+                    <span style="color: #888">${code}</span>
+                `;
+                batchList.appendChild(div);
+            }
+        }
+        
+        // Initialize stats
+        document.getElementById('todayCount').textContent = todayCount;
+        
+        // Auto-increment sample number
+        document.getElementById('sampleNumber').addEventListener('focus', function() {
+            if (!this.value) {
+                // Get last used number from localStorage
+                const lastNumber = parseInt(localStorage.getItem('lastSampleNumber') || '0');
+                this.value = lastNumber + 1;
+            }
+        });
+        
+        // Save last used number
+        document.getElementById('sampleNumber').addEventListener('change', function() {
+            localStorage.setItem('lastSampleNumber', this.value);
+        });
+    </script>
+</body>
+</html>

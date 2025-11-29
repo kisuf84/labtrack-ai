@@ -3,95 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LabTrack AI - Generador de Códigos de Barras</title>
+    <title>LabTrack AI - Generador de Códigos</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
-            padding: 2rem;
             color: #fff;
+            padding: 1rem;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto;
         }
         
         header {
             text-align: center;
-            margin-bottom: 2rem;
+            padding: 1.5rem 0;
         }
         
         h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
             background: linear-gradient(90deg, #00d9ff, #00ff88);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
         .subtitle {
-            color: #888;
-            font-size: 0.9rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
         }
         
         .card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
         
         label {
             display: block;
+            font-size: 0.8rem;
+            color: #94a3b8;
             margin-bottom: 0.5rem;
-            color: #aaa;
-            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         select, input {
             width: 100%;
-            padding: 0.875rem 1rem;
+            padding: 0.875rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.3);
             color: #fff;
             font-size: 1rem;
-            transition: all 0.2s;
         }
         
         select:focus, input:focus {
             outline: none;
             border-color: #00d9ff;
-            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
         }
         
         select option {
-            background: #1a1a2e;
+            background: #1e293b;
+            color: #fff;
         }
         
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        button {
+        .btn {
             width: 100%;
             padding: 1rem;
             border: none;
@@ -100,6 +90,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            margin-top: 0.5rem;
         }
         
         .btn-primary {
@@ -115,421 +106,400 @@
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            margin-top: 0.5rem;
         }
         
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .barcode-output {
+        /* Generated Code Display */
+        .code-display {
+            display: none;
             text-align: center;
-            padding: 2rem;
-            background: #fff;
-            border-radius: 12px;
             margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .barcode-output svg {
-            max-width: 100%;
+        .code-display.visible {
+            display: block;
         }
         
-        .barcode-info {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(0, 217, 255, 0.1);
-            border-radius: 8px;
-            text-align: left;
-        }
-        
-        .barcode-info p {
-            margin: 0.25rem 0;
-            font-size: 0.9rem;
-        }
-        
-        .barcode-info strong {
+        .code-text {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: #00d9ff;
+            margin-bottom: 1rem;
         }
         
+        /* Label Preview - What will print */
         .label-preview {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #fff;
+            background: white;
+            padding: 8px;
             border-radius: 8px;
-            color: #000;
-            width: 2in;
-            height: 1in;
+            display: inline-block;
             margin: 1rem auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
-        .label-preview .lab-name {
-            font-size: 8px;
+        .label-content {
+            text-align: center;
+            width: 2in;
+        }
+        
+        .label-header {
+            font-size: 7px;
             font-weight: bold;
-            margin-bottom: 4px;
+            color: #000;
+            margin-bottom: 2px;
         }
         
-        .label-preview svg {
+        .label-barcode svg {
             max-width: 100%;
-            height: 40px;
+            height: 30px;
         }
         
-        .label-preview .code-text {
+        .label-qr {
+            margin-top: 4px;
+        }
+        
+        .label-qr canvas {
+            width: 50px !important;
+            height: 50px !important;
+        }
+        
+        .label-code {
             font-size: 9px;
             font-weight: bold;
+            color: #000;
             margin-top: 2px;
         }
         
-        .hidden {
-            display: none;
+        .label-info {
+            font-size: 6px;
+            color: #666;
         }
         
+        /* Dual Layout - Side by Side */
+        .label-dual {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .label-left {
+            flex: 1;
+        }
+        
+        .label-right {
+            width: 50px;
+        }
+        
+        /* Stats */
         .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1.25rem;
+        .stat {
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .stat-number {
-            font-size: 2rem;
+        .stat-value {
+            font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #00ff88;
         }
         
         .stat-label {
-            font-size: 0.75rem;
-            color: #888;
+            font-size: 0.7rem;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.25rem;
         }
         
-        .batch-list {
+        /* Area codes reference */
+        .area-codes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
             margin-top: 1rem;
+            font-size: 0.75rem;
+        }
+        
+        .area-code {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .area-code .code {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            .label-preview, .label-preview * {
+                visibility: visible !important;
+            }
+            
+            .label-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                padding: 4px;
+                box-shadow: none;
+                border: none;
+            }
+        }
+        
+        /* Batch mode */
+        .batch-list {
             max-height: 200px;
             overflow-y: auto;
+            margin-top: 1rem;
         }
         
         .batch-item {
             display: flex;
             justify-content: space-between;
             padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 4px;
             margin-bottom: 0.25rem;
             font-size: 0.85rem;
         }
         
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .no-print {
-                display: none !important;
-            }
-            
-            .label-preview {
-                box-shadow: none;
-                border: 1px solid #ccc;
-            }
+        .batch-item .code {
+            color: #00d9ff;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="no-print">
-            <h1>🧪 LabTrack AI</h1>
-            <p class="subtitle">Generador de Códigos de Barras para Laboratorio</p>
+        <header>
+            <h1>🏷️ LabTrack AI</h1>
+            <p class="subtitle">Generador de Códigos de Barras + QR</p>
         </header>
         
-        <div class="stats no-print">
-            <div class="stat-card">
-                <div class="stat-number" id="todayCount">0</div>
-                <div class="stat-label">Generados Hoy</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="sessionCount">0</div>
-                <div class="stat-label">Esta Sesión</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="lastCode">---</div>
-                <div class="stat-label">Último Código</div>
-            </div>
-        </div>
-        
-        <div class="card no-print">
-            <h2 style="margin-bottom: 1rem; font-size: 1.1rem;">Nueva Muestra</h2>
-            
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Área del Laboratorio</label>
-                    <select id="labArea">
-                        <option value="MIC">Microbiología</option>
-                        <option value="NEM">Nematología</option>
-                        <option value="FIT">Fitopatología</option>
-                        <option value="ENT">Entomología</option>
-                        <option value="MCR">Micorrizas</option>
-                        <option value="PRB">Pruebas</option>
-                        <option value="AGL">Agrilab</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Número de Muestra</label>
-                    <input type="number" id="sampleNumber" placeholder="Ej: 2630" min="1">
-                </div>
+        <div class="card">
+            <div class="form-group">
+                <label>Área del Laboratorio</label>
+                <select id="lab-area">
+                    <option value="MIC">Microbiología (MIC)</option>
+                    <option value="NEM">Nematología (NEM)</option>
+                    <option value="FIT">Fitopatología (FIT)</option>
+                    <option value="ENT">Entomología (ENT)</option>
+                    <option value="MCR">Micorrizas (MCR)</option>
+                    <option value="PRB">Pruebas (PRB)</option>
+                    <option value="AGL">Agrilab (AGL)</option>
+                </select>
             </div>
             
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Cliente (Opcional)</label>
-                    <input type="text" id="clientName" placeholder="Nombre del cliente">
-                </div>
-                
-                <div class="form-group">
-                    <label>Tipo de Muestra</label>
-                    <select id="sampleType">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="Suelo">Suelo</option>
-                        <option value="Raíz">Raíz</option>
-                        <option value="Hoja">Hoja</option>
-                        <option value="Tallo">Tallo</option>
-                        <option value="Agua">Agua</option>
-                        <option value="Sustrato">Sustrato</option>
-                        <option value="Insecto">Insecto</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label>Número de Muestra</label>
+                <input type="number" id="sample-num" min="1" value="1" placeholder="Ej: 1">
             </div>
             
-            <button class="btn-primary" onclick="generateBarcode()">
-                🏷️ Generar Código de Barras
+            <div class="form-group">
+                <label>Año</label>
+                <input type="number" id="year" value="2025" min="2024" max="2030">
+            </div>
+            
+            <button class="btn btn-primary" onclick="generateCode()">
+                🏷️ Generar Código
             </button>
-        </div>
-        
-        <div class="card" id="outputCard" style="display: none;">
-            <h2 style="margin-bottom: 1rem; font-size: 1.1rem; color: #00ff88;">✅ Código Generado</h2>
             
-            <!-- Full size barcode -->
-            <div class="barcode-output">
-                <svg id="barcode"></svg>
-            </div>
-            
-            <!-- Label preview (actual print size) -->
-            <p class="no-print" style="text-align: center; margin-top: 1rem; color: #888; font-size: 0.8rem;">
-                Vista previa de etiqueta (2" x 1"):
-            </p>
-            <div class="label-preview" id="labelPreview">
-                <div class="lab-name">SAFER AGROBIOLÓGICOS</div>
-                <svg id="barcodeSmall"></svg>
-                <div class="code-text" id="labelCode"></div>
-            </div>
-            
-            <div class="barcode-info no-print">
-                <p><strong>Código:</strong> <span id="fullCode"></span></p>
-                <p><strong>Área:</strong> <span id="areaName"></span></p>
-                <p><strong>Cliente:</strong> <span id="clientDisplay"></span></p>
-                <p><strong>Generado:</strong> <span id="timestamp"></span></p>
-            </div>
-            
-            <div class="grid-2 no-print" style="margin-top: 1rem;">
-                <button class="btn-primary" onclick="printLabel()">
+            <!-- Generated Code Display -->
+            <div class="code-display" id="code-display">
+                <div class="code-text" id="full-code">-</div>
+                
+                <div class="label-preview">
+                    <div class="label-content">
+                        <div class="label-header">SAFER AGROBIOLÓGICOS</div>
+                        <div class="label-dual">
+                            <div class="label-left">
+                                <div class="label-barcode">
+                                    <svg id="barcode-svg"></svg>
+                                </div>
+                                <div class="label-code" id="label-code">-</div>
+                            </div>
+                            <div class="label-right">
+                                <canvas id="qr-canvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1rem;">
+                    Vista previa de etiqueta (2" x 1")<br>
+                    📷 El código QR facilita el escaneo con celular
+                </p>
+                
+                <button class="btn btn-primary" onclick="window.print()">
                     🖨️ Imprimir Etiqueta
                 </button>
-                <button class="btn-secondary" onclick="copyCode()">
-                    📋 Copiar Código
+                
+                <button class="btn btn-secondary" onclick="generateNext()">
+                    ➡️ Siguiente Muestra
                 </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="stat-generated">0</div>
+                    <div class="stat-label">Generados</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="stat-printed">0</div>
+                    <div class="stat-label">Impresos</div>
+                </div>
             </div>
         </div>
         
-        <!-- Batch generation -->
-        <div class="card no-print">
-            <h2 style="margin-bottom: 1rem; font-size: 1.1rem;">📦 Generación por Lote</h2>
-            
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Desde Número</label>
-                    <input type="number" id="batchStart" placeholder="Ej: 2630" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Hasta Número</label>
-                    <input type="number" id="batchEnd" placeholder="Ej: 2640" min="1">
-                </div>
+        <!-- Area Codes Reference -->
+        <div class="card">
+            <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">📋 Códigos de Área</h3>
+            <div class="area-codes">
+                <div class="area-code"><span>Microbiología</span><span class="code">MIC</span></div>
+                <div class="area-code"><span>Nematología</span><span class="code">NEM</span></div>
+                <div class="area-code"><span>Fitopatología</span><span class="code">FIT</span></div>
+                <div class="area-code"><span>Entomología</span><span class="code">ENT</span></div>
+                <div class="area-code"><span>Micorrizas</span><span class="code">MCR</span></div>
+                <div class="area-code"><span>Pruebas</span><span class="code">PRB</span></div>
+                <div class="area-code"><span>Agrilab</span><span class="code">AGL</span></div>
             </div>
-            
-            <button class="btn-secondary" onclick="generateBatch()">
+        </div>
+        
+        <!-- Batch Generation -->
+        <div class="card">
+            <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">📦 Generación en Lote</h3>
+            <div class="form-group">
+                <label>Cantidad a Generar</label>
+                <input type="number" id="batch-count" min="1" max="50" value="5">
+            </div>
+            <button class="btn btn-secondary" onclick="generateBatch()">
                 Generar Lote
             </button>
-            
-            <div class="batch-list" id="batchList"></div>
+            <div class="batch-list" id="batch-list"></div>
         </div>
     </div>
     
     <script>
-        let sessionCount = 0;
-        let todayCount = parseInt(localStorage.getItem('todayCount') || '0');
-        const today = new Date().toDateString();
-        
-        // Reset daily count if new day
-        if (localStorage.getItem('countDate') !== today) {
-            todayCount = 0;
-            localStorage.setItem('countDate', today);
-        }
+        let generatedCount = parseInt(localStorage.getItem('labtrack_generated') || '0');
+        let printedCount = parseInt(localStorage.getItem('labtrack_printed') || '0');
         
         // Update stats display
-        function updateStats(code) {
-            sessionCount++;
-            todayCount++;
-            localStorage.setItem('todayCount', todayCount);
-            
-            document.getElementById('sessionCount').textContent = sessionCount;
-            document.getElementById('todayCount').textContent = todayCount;
-            document.getElementById('lastCode').textContent = code.split('-')[1] || code;
+        function updateStats() {
+            document.getElementById('stat-generated').textContent = generatedCount;
+            document.getElementById('stat-printed').textContent = printedCount;
         }
         
-        // Get area full name
-        function getAreaName(code) {
-            const areas = {
-                'MIC': 'Microbiología',
-                'NEM': 'Nematología',
-                'FIT': 'Fitopatología',
-                'ENT': 'Entomología',
-                'MCR': 'Micorrizas',
-                'PRB': 'Pruebas',
-                'AGL': 'Agrilab'
-            };
-            return areas[code] || code;
-        }
-        
-        // Generate barcode
-        function generateBarcode() {
-            const labArea = document.getElementById('labArea').value;
-            const sampleNumber = document.getElementById('sampleNumber').value;
-            const clientName = document.getElementById('clientName').value;
-            const sampleType = document.getElementById('sampleType').value;
+        // Generate single code
+        function generateCode() {
+            const area = document.getElementById('lab-area').value;
+            const num = document.getElementById('sample-num').value;
+            const year = document.getElementById('year').value;
             
-            if (!sampleNumber) {
-                alert('Por favor ingrese el número de muestra');
-                return;
-            }
+            const codigoInterno = `${area}-${num}`;
+            const fullBarcode = `SAFER-${area}-${num}-${year}`;
             
-            const year = new Date().getFullYear();
-            const codigoInterno = `${labArea}-${sampleNumber}`;
-            const fullBarcode = `SAFER-${codigoInterno}-${year}`;
+            // Update display
+            document.getElementById('full-code').textContent = fullBarcode;
+            document.getElementById('label-code').textContent = codigoInterno;
             
-            // Generate main barcode
-            JsBarcode("#barcode", fullBarcode, {
+            // Generate barcode
+            JsBarcode("#barcode-svg", fullBarcode, {
                 format: "CODE128",
-                width: 2,
-                height: 80,
-                displayValue: true,
-                fontSize: 16,
-                margin: 10
-            });
-            
-            // Generate small barcode for label
-            JsBarcode("#barcodeSmall", fullBarcode, {
-                format: "CODE128",
-                width: 1.5,
-                height: 30,
+                width: 1.2,
+                height: 25,
                 displayValue: false,
                 margin: 0
             });
             
-            // Update displays
-            document.getElementById('labelCode').textContent = codigoInterno;
-            document.getElementById('fullCode').textContent = fullBarcode;
-            document.getElementById('areaName').textContent = getAreaName(labArea);
-            document.getElementById('clientDisplay').textContent = clientName || 'No especificado';
-            document.getElementById('timestamp').textContent = new Date().toLocaleString('es-CO');
+            // Generate QR code
+            const qrCanvas = document.getElementById('qr-canvas');
+            QRCode.toCanvas(qrCanvas, fullBarcode, {
+                width: 50,
+                margin: 0,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            });
             
-            // Show output
-            document.getElementById('outputCard').style.display = 'block';
+            // Show display
+            document.getElementById('code-display').classList.add('visible');
             
             // Update stats
-            updateStats(codigoInterno);
-            
-            // Scroll to output
-            document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
+            generatedCount++;
+            localStorage.setItem('labtrack_generated', generatedCount);
+            updateStats();
         }
         
-        // Print label
-        function printLabel() {
-            window.print();
+        // Generate next in sequence
+        function generateNext() {
+            const numInput = document.getElementById('sample-num');
+            numInput.value = parseInt(numInput.value) + 1;
+            generateCode();
         }
         
-        // Copy code to clipboard
-        function copyCode() {
-            const code = document.getElementById('fullCode').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                alert('Código copiado: ' + code);
-            });
-        }
-        
-        // Generate batch
+        // Batch generation
         function generateBatch() {
-            const start = parseInt(document.getElementById('batchStart').value);
-            const end = parseInt(document.getElementById('batchEnd').value);
-            const labArea = document.getElementById('labArea').value;
+            const area = document.getElementById('lab-area').value;
+            const startNum = parseInt(document.getElementById('sample-num').value);
+            const year = document.getElementById('year').value;
+            const count = parseInt(document.getElementById('batch-count').value);
             
-            if (!start || !end || start > end) {
-                alert('Por favor ingrese un rango válido');
-                return;
-            }
+            const list = document.getElementById('batch-list');
+            list.innerHTML = '';
             
-            if (end - start > 50) {
-                alert('Máximo 50 códigos por lote');
-                return;
-            }
-            
-            const year = new Date().getFullYear();
-            const batchList = document.getElementById('batchList');
-            batchList.innerHTML = '';
-            
-            for (let i = start; i <= end; i++) {
-                const code = `SAFER-${labArea}-${i}-${year}`;
-                const div = document.createElement('div');
-                div.className = 'batch-item';
-                div.innerHTML = `
-                    <span>${labArea}-${i}</span>
-                    <span style="color: #888">${code}</span>
+            for (let i = 0; i < count; i++) {
+                const num = startNum + i;
+                const codigoInterno = `${area}-${num}`;
+                const fullBarcode = `SAFER-${area}-${num}-${year}`;
+                
+                const item = document.createElement('div');
+                item.className = 'batch-item';
+                item.innerHTML = `
+                    <span class="code">${codigoInterno}</span>
+                    <span>${fullBarcode}</span>
                 `;
-                batchList.appendChild(div);
+                item.onclick = () => {
+                    document.getElementById('sample-num').value = num;
+                    generateCode();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                list.appendChild(item);
             }
+            
+            // Update sample number for next batch
+            document.getElementById('sample-num').value = startNum + count;
         }
         
-        // Initialize stats
-        document.getElementById('todayCount').textContent = todayCount;
+        // Track prints
+        window.onbeforeprint = () => {
+            printedCount++;
+            localStorage.setItem('labtrack_printed', printedCount);
+            updateStats();
+        };
         
-        // Auto-increment sample number
-        document.getElementById('sampleNumber').addEventListener('focus', function() {
-            if (!this.value) {
-                // Get last used number from localStorage
-                const lastNumber = parseInt(localStorage.getItem('lastSampleNumber') || '0');
-                this.value = lastNumber + 1;
-            }
-        });
-        
-        // Save last used number
-        document.getElementById('sampleNumber').addEventListener('change', function() {
-            localStorage.setItem('lastSampleNumber', this.value);
-        });
+        // Initialize
+        updateStats();
     </script>
 </body>
 </html>

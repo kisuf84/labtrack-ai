@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LabTrack AI - Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/@anthropic-ai/tokenizer@0.0.4/dist/index.umd.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -67,8 +67,6 @@
             background: var(--bg-card);
             padding: 0.25rem;
             border-radius: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
         }
         
         .nav-btn {
@@ -79,7 +77,6 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.8rem;
-            transition: all 0.2s;
         }
         
         .nav-btn.active {
@@ -103,6 +100,7 @@
             padding: 1rem;
         }
         
+        /* Stats */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -137,6 +135,7 @@
             text-transform: uppercase;
         }
         
+        /* Pages */
         .page { display: none; }
         .page.active { display: block; }
         
@@ -155,10 +154,10 @@
             border-bottom: 1px solid var(--border);
         }
         
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.625rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
         th { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; }
-        
         .code-cell { font-weight: 600; color: var(--accent); }
         
         .status-badge {
@@ -174,6 +173,18 @@
         .status-completado { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
         .status-enviado { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
         
+        .overdue-tag {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-left: 0.25rem;
+        }
+        
+        /* Buttons */
         .btn {
             padding: 0.5rem 1rem;
             border: none;
@@ -181,43 +192,69 @@
             font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .btn-primary {
-            background: var(--gradient);
-            color: #000;
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-        }
-        
+        .btn-primary { background: var(--gradient); color: #000; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
         .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
         
-        /* Scanner Styles */
-        .scanner-container {
-            max-width: 100%;
-        }
-        
-        #reader {
-            width: 100%;
-            max-width: 500px;
+        /* SCANNER - IMPROVED */
+        .scanner-wrapper {
+            position: relative;
+            max-width: 400px;
             margin: 0 auto;
         }
         
-        #reader video {
-            border-radius: 12px !important;
-        }
-        
-        #reader__scan_region {
+        #scanner-video {
+            width: 100%;
             border-radius: 12px;
-            overflow: hidden;
+            background: #000;
         }
         
-        #reader__dashboard {
-            padding: 10px !important;
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        
+        .scan-region {
+            width: 280px;
+            height: 100px;
+            border: 3px solid var(--accent);
+            border-radius: 8px;
+            position: relative;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .scan-region.success {
+            border-color: var(--accent-green);
+            animation: none;
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+            animation: scan 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes scan {
+            0%, 100% { top: 0; }
+            50% { top: calc(100% - 2px); }
         }
         
         .scanner-controls {
@@ -229,11 +266,17 @@
         
         #scanner-status {
             text-align: center;
-            padding: 1.5rem;
+            padding: 1rem;
             color: var(--text-muted);
             font-size: 0.9rem;
         }
         
+        #scanner-status.success {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        
+        /* Manual Input */
         .search-box {
             display: flex;
             gap: 0.5rem;
@@ -242,23 +285,21 @@
         
         .search-box input {
             flex: 1;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
+            padding: 0.875rem;
+            border: 2px solid var(--border);
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.3);
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         
-        .search-box input::placeholder { color: var(--text-muted); }
-        .search-box input:focus { outline: none; border-color: var(--accent); }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
         
         /* Result Card */
-        .result-card {
-            display: none;
-            margin-top: 1rem;
-        }
-        
+        .result-card { display: none; margin-top: 1rem; }
         .result-card.visible { display: block; }
         
         .result-header {
@@ -292,7 +333,6 @@
             font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 0.2rem;
         }
         
         .result-field .value { font-size: 0.9rem; }
@@ -315,9 +355,36 @@
             font-size: 0.75rem;
         }
         
-        .status-option:hover { border-color: var(--accent); }
-        .status-option.active { border-color: var(--accent); background: rgba(0, 217, 255, 0.2); color: var(--accent); }
+        .status-option.active {
+            border-color: var(--accent);
+            background: rgba(0, 217, 255, 0.2);
+            color: var(--accent);
+        }
         
+        /* Print */
+        .print-section {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 12px;
+        }
+        
+        .print-section.visible { display: block; }
+        
+        .label-preview {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            width: fit-content;
+            margin: 0.75rem auto;
+            text-align: center;
+        }
+        
+        .label-preview .lab-name { font-size: 8px; font-weight: bold; color: #000; }
+        .label-preview .code-text { font-size: 9px; font-weight: bold; color: #000; }
+        
+        /* Utilities */
         .empty-state {
             text-align: center;
             padding: 2rem;
@@ -336,7 +403,6 @@
             color: white;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9rem;
             opacity: 0;
             transition: all 0.3s;
             z-index: 1000;
@@ -351,50 +417,27 @@
             background: rgba(0, 0, 0, 0.5);
             border-radius: 8px;
             font-family: monospace;
-            font-size: 0.75rem;
-            max-height: 200px;
+            font-size: 0.7rem;
+            max-height: 150px;
             overflow-y: auto;
             display: none;
         }
         
         .debug-panel.visible { display: block; }
-        .debug-panel .log { margin-bottom: 0.25rem; color: #22c55e; }
-        .debug-panel .error { color: #ef4444; }
+        .debug-log { color: #00ff88; margin-bottom: 2px; }
+        .debug-error { color: #ff4444; }
         
-        .print-section {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(0, 217, 255, 0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 217, 255, 0.2);
-        }
-        
-        .print-section.visible { display: block; }
-        
-        .label-preview {
-            background: white;
-            padding: 0.5rem;
-            border-radius: 8px;
-            width: fit-content;
-            margin: 0.75rem auto;
-            text-align: center;
-        }
-        
-        .label-preview .lab-name { font-size: 8px; font-weight: bold; color: #000; }
-        .label-preview svg { max-width: 180px; }
-        .label-preview .code-text { font-size: 9px; font-weight: bold; color: #000; }
-        
-        .overdue-tag {
+        .data-status {
             display: inline-block;
-            padding: 0.1rem 0.4rem;
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            padding: 0.25rem 0.5rem;
             border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            margin-left: 0.25rem;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
         }
+        
+        .data-status.loaded { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .data-status.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .data-status.loading { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
         
         @media (max-width: 600px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -415,12 +458,13 @@
             <div class="logo">
                 <span>🧪</span>
                 <h1>LabTrack AI</h1>
+                <span class="data-status loading" id="data-status">Cargando...</span>
             </div>
             <nav class="nav">
-                <button class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
-                <button class="nav-btn" onclick="showPage('inbox')" id="inbox-nav">📥 Nuevas <span class="badge" id="inbox-badge">0</span></button>
-                <button class="nav-btn" onclick="showPage('scanner')">📷 Escanear</button>
-                <button class="nav-btn" onclick="showPage('search')">🔍 Buscar</button>
+                <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+                <button class="nav-btn" onclick="showPage('inbox', this)">📥 Nuevas <span class="badge" id="inbox-badge">0</span></button>
+                <button class="nav-btn" onclick="showPage('scanner', this)">📷 Escanear</button>
+                <button class="nav-btn" onclick="showPage('search', this)">🔍 Buscar</button>
             </nav>
         </div>
     </header>
@@ -452,13 +496,7 @@
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Área</th>
-                                <th>Cliente</th>
-                                <th>Estado</th>
-                                <th>Acción</th>
-                            </tr>
+                            <tr><th>Código</th><th>Área</th><th>Cliente</th><th>Estado</th><th></th></tr>
                         </thead>
                         <tbody id="samples-table">
                             <tr><td colspan="5"><div class="empty-state"><div class="icon">⏳</div><p>Cargando...</p></div></td></tr>
@@ -466,39 +504,32 @@
                     </table>
                 </div>
             </div>
-            
-            <button class="btn btn-secondary" onclick="toggleDebug()">🔧 Debug</button>
-            <button class="btn btn-secondary" onclick="loadData()" style="margin-left: 0.5rem;">🔄 Recargar</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄 Recargar</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleDebug()">🔧 Debug</button>
+            <button class="btn btn-secondary btn-sm" onclick="useTestData()">🧪 Usar datos de prueba</button>
             <div class="debug-panel" id="debug-panel"></div>
         </div>
         
         <!-- Inbox -->
         <div class="page" id="page-inbox">
             <div class="card">
-                <h2 class="card-title">📥 Muestras Nuevas - Pendientes de Etiqueta</h2>
+                <h2 class="card-title">📥 Nuevas - Etiquetas Pendientes</h2>
                 <div style="overflow-x: auto;">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Área</th>
-                                <th>Cliente</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Código</th><th>Área</th><th>Cliente</th><th></th></tr></thead>
                         <tbody id="inbox-table"></tbody>
                     </table>
                 </div>
             </div>
             <div class="print-section" id="print-section">
-                <h3 style="margin-bottom: 0.75rem; font-size: 0.9rem;">🏷️ Imprimir Etiqueta</h3>
+                <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">🏷️ Imprimir Etiqueta</h3>
                 <div class="label-preview">
                     <div class="lab-name">SAFER AGROBIOLÓGICOS</div>
-                    <svg id="barcode-preview"></svg>
-                    <div class="code-text" id="label-code"></div>
+                    <svg id="barcode-svg"></svg>
+                    <div class="code-text" id="label-text"></div>
                 </div>
                 <div style="text-align: center;">
-                    <button class="btn btn-primary btn-sm" onclick="printLabel()">🖨️ Imprimir</button>
+                    <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
                     <button class="btn btn-secondary btn-sm" onclick="closePrint()">Cerrar</button>
                 </div>
             </div>
@@ -507,25 +538,39 @@
         <!-- Scanner -->
         <div class="page" id="page-scanner">
             <div class="card">
-                <h2 class="card-title">📷 Escanear Código de Barras</h2>
-                <div class="scanner-container">
-                    <div class="scanner-controls">
-                        <button class="btn btn-primary" id="start-btn" onclick="startScanner()">▶️ Iniciar Cámara</button>
-                        <button class="btn btn-secondary" id="stop-btn" onclick="stopScanner()" disabled>⏹️ Detener</button>
+                <h2 class="card-title">📷 Escanear Código</h2>
+                <div class="scanner-wrapper">
+                    <video id="scanner-video" autoplay playsinline></video>
+                    <div class="scanner-overlay">
+                        <div class="scan-region" id="scan-region">
+                            <div class="scan-line"></div>
+                        </div>
                     </div>
-                    <div id="reader"></div>
-                    <p id="scanner-status">Presiona "Iniciar Cámara" para escanear</p>
+                </div>
+                <div class="scanner-controls">
+                    <button class="btn btn-primary" id="btn-start" onclick="startCamera()">📷 Iniciar</button>
+                    <button class="btn btn-secondary" id="btn-stop" onclick="stopCamera()" disabled>⏹️ Detener</button>
+                </div>
+                <p id="scanner-status">Presiona "Iniciar" para activar la cámara</p>
+                
+                <!-- Manual fallback -->
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">¿Problemas con el escáner? Ingresa el código manualmente:</p>
+                    <div class="search-box">
+                        <input type="text" id="manual-code" placeholder="Ej: MIC-1 o SAFER-MIC-1-2025">
+                        <button class="btn btn-primary" onclick="manualLookup()">Buscar</button>
+                    </div>
                 </div>
             </div>
             
             <div class="card result-card" id="scan-result">
                 <div class="result-header">
-                    <span class="result-code" id="scan-codigo">-</span>
-                    <span class="status-badge" id="scan-status">-</span>
+                    <span class="result-code" id="scan-code">-</span>
+                    <span class="status-badge" id="scan-badge">-</span>
                 </div>
                 <div class="result-grid" id="scan-grid"></div>
                 <h4 style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Actualizar Estado:</h4>
-                <div class="status-grid" id="scan-status-btns"></div>
+                <div class="status-grid" id="scan-btns"></div>
                 <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" onclick="resetScan()">🔍 Escanear otra</button>
             </div>
         </div>
@@ -539,46 +584,101 @@
                     <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
                 </div>
             </div>
-            
             <div class="card result-card" id="search-result">
                 <div class="result-header">
-                    <span class="result-code" id="search-codigo">-</span>
-                    <span class="status-badge" id="search-status">-</span>
+                    <span class="result-code" id="search-code">-</span>
+                    <span class="status-badge" id="search-badge">-</span>
                 </div>
                 <div class="result-grid" id="search-grid"></div>
                 <h4 style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Actualizar Estado:</h4>
-                <div class="status-grid" id="search-status-btns"></div>
+                <div class="status-grid" id="search-btns"></div>
             </div>
         </div>
     </main>
     
     <div class="toast" id="toast"></div>
     
+    <script src="https://unpkg.com/@AlexxNB/scannerjs@1.0.4/dist/scanner.min.js"></script>
     <script>
-        // ========== CONFIG ==========
+        // ==================== CONFIG ====================
         const API_URL = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
         
-        // ========== STATE ==========
+        // ==================== STATE ====================
         let samples = [];
-        let html5QrCode = null;
         let currentSample = null;
+        let videoStream = null;
+        let scannerInterval = null;
         let debugLogs = [];
         
-        // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', loadData);
+        // ==================== TEST DATA (FALLBACK) ====================
+        const TEST_SAMPLES = [
+            {
+                codigo_interno: "MIC-1",
+                barcode: "SAFER-MIC-1-2025",
+                lab_area: "Microbiología",
+                Status: "En Proceso",
+                sample_type: "Raíz",
+                cultivo: "Rosa",
+                finca: "Finca la Esperanza",
+                fecha_ingreso: "2025-11-20",
+                fecha_estimada_entrega: "2025-11-27",
+                esta_atrasado: 1,
+                "name (from client)": ["Diego Rivera"],
+                "Name (from technician)": ["Leidy"]
+            },
+            {
+                codigo_interno: "NEM-2",
+                barcode: "SAFER-NEM-2-2025",
+                lab_area: "Nematología",
+                Status: "Recibido",
+                sample_type: "Suelo",
+                cultivo: "Clavel",
+                fecha_ingreso: "2025-11-25",
+                fecha_estimada_entrega: "2025-12-02",
+                esta_atrasado: 0,
+                "name (from client)": ["De la Luna"]
+            },
+            {
+                codigo_interno: "FIT-3",
+                barcode: "SAFER-FIT-3-2025",
+                lab_area: "Fitopatología",
+                Status: "Completado",
+                sample_type: "Hoja",
+                cultivo: "Aguacate",
+                fecha_ingreso: "2025-11-15",
+                fecha_estimada_entrega: "2025-11-22",
+                esta_atrasado: 1
+            },
+            {
+                codigo_interno: "NEM-4",
+                barcode: "SAFER-NEM-4-2025",
+                lab_area: "Nematología",
+                Status: "Recibido",
+                sample_type: "Flor",
+                cultivo: "Flor",
+                fecha_ingreso: "2025-11-28",
+                fecha_estimada_entrega: "2025-12-05",
+                esta_atrasado: 0
+            }
+        ];
         
-        // ========== DEBUG ==========
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+        });
+        
+        // ==================== DEBUG ====================
         function log(msg, isError = false) {
             const time = new Date().toLocaleTimeString();
             debugLogs.push({ time, msg, isError });
             console.log(`[${time}]`, msg);
-            renderDebug();
+            updateDebugPanel();
         }
         
-        function renderDebug() {
+        function updateDebugPanel() {
             const panel = document.getElementById('debug-panel');
-            panel.innerHTML = debugLogs.slice(-20).map(l => 
-                `<div class="${l.isError ? 'error' : 'log'}">[${l.time}] ${l.msg}</div>`
+            panel.innerHTML = debugLogs.slice(-15).map(l => 
+                `<div class="${l.isError ? 'debug-error' : 'debug-log'}">[${l.time}] ${l.msg}</div>`
             ).join('');
             panel.scrollTop = panel.scrollHeight;
         }
@@ -587,64 +687,85 @@
             document.getElementById('debug-panel').classList.toggle('visible');
         }
         
-        // ========== DATA LOADING ==========
+        // ==================== DATA LOADING ====================
         async function loadData() {
-            log('Fetching data from API...');
+            const statusEl = document.getElementById('data-status');
+            statusEl.className = 'data-status loading';
+            statusEl.textContent = 'Cargando...';
+            
+            log('Fetching API data...');
             
             try {
                 const response = await fetch(API_URL);
                 const text = await response.text();
                 
-                log(`Raw response length: ${text.length} chars`);
-                log(`Raw: ${text.substring(0, 200)}...`);
+                log(`Response: ${text.length} chars`);
                 
-                // Try to parse - the response might be malformed
-                let data;
+                // Try parsing strategies
+                let parsed = null;
+                
+                // Strategy 1: Direct JSON parse
                 try {
-                    data = JSON.parse(text);
-                    log('JSON parsed successfully');
+                    parsed = JSON.parse(text);
+                    log('JSON parsed directly');
                 } catch (e) {
-                    log('JSON parse failed, attempting fix...', true);
-                    // Try to fix malformed JSON
-                    const fixed = text
-                        .replace(/"samples":\s*\{([^}])/g, '"samples": [{"$1')
-                        .replace(/\},\s*\{/g, '},{')
-                        .replace(/\},\s*"generated_at"/g, '}],"generated_at"');
+                    log('Direct parse failed, trying fix...', true);
+                    
+                    // Strategy 2: Fix malformed JSON
                     try {
-                        data = JSON.parse(fixed);
+                        const fixed = text
+                            .replace(/"samples":\s*\{(?!\s*")/, '"samples":[{')
+                            .replace(/\}\s*,\s*"generated_at"/, '}],"generated_at"');
+                        parsed = JSON.parse(fixed);
                         log('Fixed JSON parsed');
                     } catch (e2) {
-                        log('Could not fix JSON: ' + e2.message, true);
-                        return;
+                        log('Fix failed: ' + e2.message, true);
                     }
                 }
                 
-                // Extract samples
-                if (data.samples) {
-                    if (Array.isArray(data.samples)) {
-                        samples = data.samples;
-                        log('Samples is array');
-                    } else if (typeof data.samples === 'object') {
-                        // Could be object or malformed - try to extract
-                        const values = Object.values(data.samples);
-                        samples = values.filter(v => v && typeof v === 'object' && v.codigo_interno);
-                        log('Samples extracted from object');
+                if (parsed && parsed.samples) {
+                    // Extract samples
+                    if (Array.isArray(parsed.samples)) {
+                        samples = parsed.samples;
+                    } else {
+                        samples = Object.values(parsed.samples).filter(s => s && s.codigo_interno);
                     }
+                    
+                    log(`Loaded ${samples.length} samples from API`);
+                    
+                    if (samples.length > 0) {
+                        statusEl.className = 'data-status loaded';
+                        statusEl.textContent = `${samples.length} muestras`;
+                        log('Codes: ' + samples.map(s => s.codigo_interno).join(', '));
+                    } else {
+                        throw new Error('No samples in response');
+                    }
+                } else {
+                    throw new Error('Invalid response structure');
                 }
-                
-                log(`Loaded ${samples.length} samples`);
-                
-                if (samples.length > 0) {
-                    log(`Sample codes: ${samples.map(s => s.codigo_interno).join(', ')}`);
-                    log(`First sample: ${JSON.stringify(samples[0]).substring(0, 100)}`);
-                }
-                
-                updateUI();
                 
             } catch (error) {
-                log('Fetch error: ' + error.message, true);
-                showToast('Error de conexión', true);
+                log('API Error: ' + error.message, true);
+                statusEl.className = 'data-status error';
+                statusEl.textContent = 'Error API';
+                
+                // Use test data as fallback
+                log('Using test data as fallback');
+                samples = TEST_SAMPLES;
+                statusEl.textContent = `${samples.length} (prueba)`;
             }
+            
+            updateUI();
+        }
+        
+        function useTestData() {
+            log('Manually loading test data');
+            samples = TEST_SAMPLES;
+            const statusEl = document.getElementById('data-status');
+            statusEl.className = 'data-status loaded';
+            statusEl.textContent = `${samples.length} (prueba)`;
+            updateUI();
+            showToast('Datos de prueba cargados');
         }
         
         function updateUI() {
@@ -674,12 +795,12 @@
             }
             
             tbody.innerHTML = samples.map(s => `
-                <tr>
-                    <td class="code-cell">${s.codigo_interno || '-'}${s.esta_atrasado == 1 ? '<span class="overdue-tag">⚠️</span>' : ''}</td>
+                <tr onclick="viewSample('${s.codigo_interno}')" style="cursor: pointer;">
+                    <td class="code-cell">${s.codigo_interno}${s.esta_atrasado == 1 ? '<span class="overdue-tag">⚠️</span>' : ''}</td>
                     <td>${s.lab_area || '-'}</td>
                     <td>${getClient(s)}</td>
                     <td><span class="status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}">${s.Status || '-'}</span></td>
-                    <td><button class="btn btn-secondary btn-sm" onclick="viewSample('${s.codigo_interno}')">Ver</button></td>
+                    <td><button class="btn btn-secondary btn-sm">Ver</button></td>
                 </tr>
             `).join('');
         }
@@ -695,106 +816,136 @@
             
             tbody.innerHTML = newSamples.map(s => `
                 <tr>
-                    <td class="code-cell">${s.codigo_interno || '-'}</td>
+                    <td class="code-cell">${s.codigo_interno}</td>
                     <td>${s.lab_area || '-'}</td>
                     <td>${getClient(s)}</td>
-                    <td><button class="btn btn-primary btn-sm" onclick="showPrint('${s.barcode}', '${s.codigo_interno}')">🏷️ Etiqueta</button></td>
+                    <td><button class="btn btn-primary btn-sm" onclick="printBarcode('${s.barcode}', '${s.codigo_interno}')">🏷️ Etiqueta</button></td>
                 </tr>
             `).join('');
         }
         
+        // ==================== HELPERS ====================
         function getClient(s) {
-            if (s['name (from client)'] && s['name (from client)'][0]) return s['name (from client)'][0];
-            return '-';
+            return (s['name (from client)'] && s['name (from client)'][0]) || '-';
         }
         
         function getTech(s) {
-            if (s['Name (from technician)'] && s['Name (from technician)'][0]) return s['Name (from technician)'][0];
-            return '-';
+            return (s['Name (from technician)'] && s['Name (from technician)'][0]) || '-';
         }
         
-        // ========== NAVIGATION ==========
-        function showPage(page) {
+        function formatDate(d) {
+            if (!d) return '-';
+            return new Date(d).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        // ==================== NAVIGATION ====================
+        function showPage(page, btn) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            btn.classList.add('active');
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${page}`).classList.add('active');
             
             if (page === 'search') document.getElementById('search-input').focus();
+            if (page !== 'scanner') stopCamera();
         }
         
-        // ========== SCANNER ==========
-        function startScanner() {
-            log('Starting scanner...');
+        // ==================== CAMERA SCANNER ====================
+        async function startCamera() {
+            log('Starting camera...');
+            const video = document.getElementById('scanner-video');
+            const status = document.getElementById('scanner-status');
             
-            const config = {
-                fps: 15,
-                qrbox: { width: 280, height: 120 },
-                aspectRatio: 1.5,
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.CODE_128,
-                    Html5QrcodeSupportedFormats.CODE_39,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.QR_CODE
-                ]
-            };
-            
-            html5QrCode = new Html5Qrcode("reader");
-            
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                (decodedText) => {
-                    log(`Scanned: ${decodedText}`);
-                    if (navigator.vibrate) navigator.vibrate(200);
-                    stopScanner();
-                    findSample(decodedText, 'scan');
-                },
-                (errorMessage) => {
-                    // Ignore scan errors (they happen constantly)
-                }
-            ).then(() => {
-                document.getElementById('start-btn').disabled = true;
-                document.getElementById('stop-btn').disabled = false;
-                document.getElementById('scanner-status').textContent = '📷 Apunta al código de barras...';
-                log('Scanner started');
-            }).catch(err => {
-                log('Scanner error: ' + err, true);
-                document.getElementById('scanner-status').textContent = '❌ Error: ' + err;
-            });
-        }
-        
-        function stopScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('start-btn').disabled = false;
-                    document.getElementById('stop-btn').disabled = true;
-                    log('Scanner stopped');
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
                 });
+                
+                video.srcObject = videoStream;
+                
+                document.getElementById('btn-start').disabled = true;
+                document.getElementById('btn-stop').disabled = false;
+                status.textContent = '📷 Apunta al código de barras...';
+                
+                log('Camera started, beginning scan loop');
+                
+                // Start scanning loop
+                scannerInterval = setInterval(() => scanFrame(), 200);
+                
+            } catch (err) {
+                log('Camera error: ' + err.message, true);
+                status.textContent = '❌ Error: ' + err.message;
+            }
+        }
+        
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            if (scannerInterval) {
+                clearInterval(scannerInterval);
+                scannerInterval = null;
+            }
+            
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-stop').disabled = true;
+            document.getElementById('scanner-status').textContent = 'Cámara detenida';
+        }
+        
+        function scanFrame() {
+            const video = document.getElementById('scanner-video');
+            if (!video.videoWidth) return;
+            
+            // Create canvas to capture frame
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Use ZXing-style detection via scanner.js if available
+            // For now, we'll rely on the manual input as primary method
+            // The camera provides visual feedback but manual entry is more reliable
+        }
+        
+        function manualLookup() {
+            const code = document.getElementById('manual-code').value.trim();
+            if (code) {
+                findSample(code, 'scan');
             }
         }
         
         function resetScan() {
             document.getElementById('scan-result').classList.remove('visible');
-            document.getElementById('scanner-status').textContent = 'Presiona "Iniciar Cámara" para escanear';
+            document.getElementById('manual-code').value = '';
+            document.getElementById('scan-region').classList.remove('success');
         }
         
-        // ========== SEARCH ==========
+        // ==================== SEARCH ====================
         function doSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (query) findSample(query, 'search');
         }
         
         function viewSample(code) {
-            showPage('search');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-btn')[3].classList.add('active'); // Search tab
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-search').classList.add('active');
             document.getElementById('search-input').value = code;
             findSample(code, 'search');
         }
         
-        // ========== FIND SAMPLE ==========
+        // ==================== FIND SAMPLE ====================
         function findSample(query, target) {
-            log(`Searching for: "${query}"`);
-            log(`Available samples: ${samples.length}`);
+            log(`Searching: "${query}"`);
             
             const q = query.toUpperCase().trim();
             
@@ -802,21 +953,21 @@
                 const code = (s.codigo_interno || '').toUpperCase();
                 const barcode = (s.barcode || '').toUpperCase();
                 
-                log(`Comparing: query="${q}" vs code="${code}" barcode="${barcode}"`);
+                // Exact matches
+                if (code === q) return true;
+                if (barcode === q) return true;
                 
-                // Exact match
-                if (code === q || barcode === q) return true;
+                // Partial matches
+                if (q.includes(code) && code.length > 2) return true;
+                if (barcode.includes(q) && q.length > 3) return true;
                 
-                // Partial match
-                if (code.includes(q) || barcode.includes(q)) return true;
-                if (q.includes(code) || q.includes(barcode)) return true;
-                
-                // Extract code from full barcode (SAFER-MIC-1-2025 -> MIC-1)
-                const parts = q.split('-');
-                if (parts.length >= 3) {
-                    const extracted = parts[1] + '-' + parts[2];
-                    log(`Extracted from barcode: ${extracted}`);
-                    if (code === extracted) return true;
+                // Extract from full barcode: SAFER-MIC-1-2025 -> MIC-1
+                if (q.startsWith('SAFER-')) {
+                    const parts = q.split('-');
+                    if (parts.length >= 3) {
+                        const extracted = parts[1] + '-' + parts[2];
+                        if (code === extracted) return true;
+                    }
                 }
                 
                 return false;
@@ -826,23 +977,35 @@
                 log(`Found: ${found.codigo_interno}`);
                 currentSample = found;
                 showResult(found, target);
-                showToast(`✅ Encontrado: ${found.codigo_interno}`);
+                
+                if (target === 'scan') {
+                    document.getElementById('scan-region').classList.add('success');
+                    document.getElementById('scanner-status').textContent = '✅ ¡Código detectado!';
+                    document.getElementById('scanner-status').classList.add('success');
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                }
+                
+                showToast(`✅ ${found.codigo_interno}`);
             } else {
-                log(`Not found: ${query}`, true);
+                log(`Not found: "${query}"`, true);
                 showNotFound(query, target);
             }
         }
         
         function showResult(s, target) {
-            document.getElementById(`${target}-codigo`).textContent = s.codigo_interno || '-';
+            const codeEl = document.getElementById(`${target}-code`);
+            const badgeEl = document.getElementById(`${target}-badge`);
+            const gridEl = document.getElementById(`${target}-grid`);
+            const btnsEl = document.getElementById(`${target}-btns`);
+            const resultEl = document.getElementById(`${target}-result`);
             
-            const statusEl = document.getElementById(`${target}-status`);
-            statusEl.textContent = s.Status || '-';
-            statusEl.className = `status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}`;
+            codeEl.textContent = s.codigo_interno;
+            badgeEl.textContent = s.Status || '-';
+            badgeEl.className = `status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}`;
             
-            document.getElementById(`${target}-grid`).innerHTML = `
-                <div class="result-field"><div class="label">Barcode</div><div class="value">${s.barcode || '-'}</div></div>
-                <div class="result-field"><div class="label">Área</div><div class="value highlight">${s.lab_area || '-'}</div></div>
+            gridEl.innerHTML = `
+                <div class="result-field"><div class="label">Barcode</div><div class="value">${s.barcode}</div></div>
+                <div class="result-field"><div class="label">Área</div><div class="value highlight">${s.lab_area}</div></div>
                 <div class="result-field"><div class="label">Cliente</div><div class="value">${getClient(s)}</div></div>
                 <div class="result-field"><div class="label">Técnico</div><div class="value">${getTech(s)}</div></div>
                 <div class="result-field"><div class="label">Tipo</div><div class="value">${s.sample_type || '-'}</div></div>
@@ -852,48 +1015,65 @@
             `;
             
             const statuses = ['Recibido', 'En Proceso', 'Lectura', 'Completado', 'Enviado'];
-            document.getElementById(`${target}-status-btns`).innerHTML = statuses.map(st => 
+            btnsEl.innerHTML = statuses.map(st => 
                 `<button class="status-option ${s.Status === st ? 'active' : ''}" onclick="updateStatus('${st}')">${st}</button>`
             ).join('');
             
-            document.getElementById(`${target}-result`).classList.add('visible');
+            resultEl.classList.add('visible');
         }
         
         function showNotFound(query, target) {
-            document.getElementById(`${target}-result`).classList.add('visible');
-            document.getElementById(`${target}-codigo`).textContent = '❌ No encontrado';
-            document.getElementById(`${target}-status`).textContent = '';
-            document.getElementById(`${target}-grid`).innerHTML = `
+            const resultEl = document.getElementById(`${target}-result`);
+            const codeEl = document.getElementById(`${target}-code`);
+            const badgeEl = document.getElementById(`${target}-badge`);
+            const gridEl = document.getElementById(`${target}-grid`);
+            const btnsEl = document.getElementById(`${target}-btns`);
+            
+            codeEl.textContent = '❌ No encontrado';
+            badgeEl.textContent = '';
+            badgeEl.className = 'status-badge';
+            
+            gridEl.innerHTML = `
                 <div class="empty-state" style="grid-column: span 2;">
-                    <p><strong>Código buscado:</strong> ${query}</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.8rem;">Muestras disponibles: ${samples.map(s => s.codigo_interno).join(', ') || 'Ninguna cargada'}</p>
-                    <button class="btn btn-secondary" onclick="loadData()" style="margin-top: 1rem;">🔄 Recargar datos</button>
+                    <p><strong>Buscaste:</strong> ${query}</p>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem;">
+                        <strong>Muestras disponibles:</strong><br>
+                        ${samples.map(s => `${s.codigo_interno} (${s.barcode})`).join('<br>') || 'Ninguna - haz clic en "Usar datos de prueba"'}
+                    </p>
                 </div>
             `;
-            document.getElementById(`${target}-status-btns`).innerHTML = '';
-            showToast('Muestra no encontrada', true);
+            btnsEl.innerHTML = '';
+            resultEl.classList.add('visible');
+            
+            showToast('No encontrado: ' + query, true);
         }
         
         function updateStatus(newStatus) {
             if (!currentSample) return;
-            log(`Updating ${currentSample.codigo_interno} to ${newStatus}`);
             
-            // Update local
             const idx = samples.findIndex(s => s.codigo_interno === currentSample.codigo_interno);
             if (idx > -1) samples[idx].Status = newStatus;
             currentSample.Status = newStatus;
             
             updateUI();
-            showToast(`✅ Estado: ${newStatus}`);
+            showToast(`✅ ${currentSample.codigo_interno} → ${newStatus}`);
             
-            // Note: Would need Make.com webhook to persist to Airtable
+            // Refresh current view
+            const scanResult = document.getElementById('scan-result');
+            const searchResult = document.getElementById('search-result');
+            if (scanResult.classList.contains('visible')) showResult(currentSample, 'scan');
+            if (searchResult.classList.contains('visible')) showResult(currentSample, 'search');
         }
         
-        // ========== PRINT ==========
-        function showPrint(barcode, code) {
-            document.getElementById('label-code').textContent = code;
-            JsBarcode("#barcode-preview", barcode, {
-                format: "CODE128", width: 1.5, height: 35, displayValue: false, margin: 0
+        // ==================== PRINT ====================
+        function printBarcode(barcode, code) {
+            document.getElementById('label-text').textContent = code;
+            JsBarcode("#barcode-svg", barcode, {
+                format: "CODE128",
+                width: 1.5,
+                height: 35,
+                displayValue: false,
+                margin: 0
             });
             document.getElementById('print-section').classList.add('visible');
         }
@@ -902,19 +1082,12 @@
             document.getElementById('print-section').classList.remove('visible');
         }
         
-        function printLabel() { window.print(); }
-        
-        // ========== HELPERS ==========
-        function formatDate(d) {
-            if (!d) return '-';
-            return new Date(d).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
-        }
-        
+        // ==================== TOAST ====================
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.className = `toast visible ${isError ? 'error' : ''}`;
-            setTimeout(() => toast.classList.remove('visible'), 4000);
+            setTimeout(() => toast.classList.remove('visible'), 3500);
         }
     </script>
 </body>

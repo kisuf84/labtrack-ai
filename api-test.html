@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabTrack - API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a2e;
+            color: #00ff88;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #00d9ff; }
+        .box {
+            background: #0a0a15;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .error { color: #ff4444; }
+        .success { color: #00ff88; }
+        button {
+            background: #00d9ff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #00ff88; }
+    </style>
+</head>
+<body>
+    <h1>🔬 LabTrack API Diagnostic</h1>
+    
+    <button onclick="testAPI()">🔄 Test API Connection</button>
+    <button onclick="clearLogs()">🗑️ Clear</button>
+    
+    <div id="output">
+        <p>Click "Test API Connection" to diagnose...</p>
+    </div>
+
+    <script>
+        const API_URL = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
+        
+        function log(msg, isError = false) {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = `box ${isError ? 'error' : 'success'}`;
+            div.textContent = typeof msg === 'object' ? JSON.stringify(msg, null, 2) : msg;
+            output.appendChild(div);
+        }
+        
+        function clearLogs() {
+            document.getElementById('output').innerHTML = '<p>Cleared. Click test again.</p>';
+        }
+        
+        async function testAPI() {
+            document.getElementById('output').innerHTML = '';
+            
+            log('Step 1: Fetching from API...');
+            log('URL: ' + API_URL);
+            
+            try {
+                const response = await fetch(API_URL);
+                log('Step 2: Response received');
+                log('Status: ' + response.status);
+                log('Content-Type: ' + response.headers.get('content-type'));
+                
+                const text = await response.text();
+                log('Step 3: Raw response text (' + text.length + ' chars):');
+                log(text);
+                
+                // Try to parse
+                log('Step 4: Attempting JSON parse...');
+                try {
+                    const data = JSON.parse(text);
+                    log('✅ JSON parsed successfully!');
+                    log('Step 5: Data structure:');
+                    log('Keys: ' + Object.keys(data).join(', '));
+                    
+                    if (data.samples) {
+                        log('Step 6: Analyzing samples...');
+                        log('Type of samples: ' + typeof data.samples);
+                        log('Is Array: ' + Array.isArray(data.samples));
+                        
+                        if (Array.isArray(data.samples)) {
+                            log('✅ Samples is an array with ' + data.samples.length + ' items');
+                            if (data.samples.length > 0) {
+                                log('First sample:');
+                                log(data.samples[0]);
+                            }
+                        } else if (typeof data.samples === 'object') {
+                            const keys = Object.keys(data.samples);
+                            log('Samples is an object with keys: ' + keys.slice(0, 10).join(', '));
+                            log('First value:');
+                            log(data.samples[keys[0]]);
+                        }
+                    } else {
+                        log('❌ No "samples" key found in response', true);
+                    }
+                    
+                } catch (parseError) {
+                    log('❌ JSON parse failed: ' + parseError.message, true);
+                    log('Step 5: Attempting to fix malformed JSON...');
+                    
+                    // Try various fixes
+                    let fixed = text;
+                    
+                    // Fix 1: Wrap samples in array
+                    if (text.includes('"samples":') && !text.includes('"samples":[')) {
+                        log('Attempting fix: wrapping samples in array...');
+                        fixed = text.replace(/"samples":\s*\{/, '"samples":[{');
+                        fixed = fixed.replace(/\},\s*"generated_at"/, '}],"generated_at"');
+                        
+                        try {
+                            const fixedData = JSON.parse(fixed);
+                            log('✅ Fix worked!');
+                            log(fixedData);
+                        } catch (e2) {
+                            log('❌ Fix 1 failed: ' + e2.message, true);
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log('❌ Fetch error: ' + error.message, true);
+                log('This usually means CORS issue or network problem', true);
+            }
+        }
+    </script>
+</body>
+</html>

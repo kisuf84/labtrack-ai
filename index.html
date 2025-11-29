@@ -7,11 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
             --bg-primary: #0f172a;
@@ -24,11 +20,6 @@
             --accent: #00d9ff;
             --accent-green: #00ff88;
             --gradient: linear-gradient(90deg, #00d9ff, #00ff88);
-            --status-recibido: #3b82f6;
-            --status-proceso: #f59e0b;
-            --status-completado: #22c55e;
-            --status-enviado: #a855f7;
-            --status-atrasado: #ef4444;
         }
         
         body {
@@ -38,10 +29,9 @@
             color: var(--text-primary);
         }
         
-        /* Header */
         .header {
             background: rgba(0, 0, 0, 0.3);
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
@@ -50,17 +40,18 @@
         }
         
         .header-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 1rem;
             align-items: center;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
         
         .logo h1 {
@@ -70,40 +61,25 @@
             -webkit-text-fill-color: transparent;
         }
         
-        .logo span {
-            font-size: 1.5rem;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-        
-        /* Navigation */
         .nav {
             display: flex;
             gap: 0.25rem;
             background: var(--bg-card);
             padding: 0.25rem;
             border-radius: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .nav-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.75rem;
             border: none;
             background: transparent;
             color: var(--text-secondary);
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
         }
         
         .nav-btn.active {
@@ -113,44 +89,37 @@
         }
         
         .nav-btn .badge {
-            background: var(--status-atrasado);
+            background: #ef4444;
             color: white;
-            font-size: 0.7rem;
-            padding: 0.125rem 0.375rem;
+            font-size: 0.65rem;
+            padding: 0.1rem 0.3rem;
             border-radius: 10px;
-            font-weight: 600;
+            margin-left: 0.25rem;
         }
         
-        .nav-btn.active .badge {
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-        }
-        
-        /* Main Content */
         .main {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 1.5rem;
+            padding: 1rem;
         }
         
-        /* Stats Row */
         .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
         
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1rem;
             text-align: center;
         }
         
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -163,131 +132,48 @@
         }
         
         .stat-label {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.25rem;
         }
         
-        /* Page Sections */
-        .page {
-            display: none;
-        }
+        .page { display: none; }
+        .page.active { display: block; }
         
-        .page.active {
-            display: block;
-        }
-        
-        /* Card */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             margin-bottom: 1rem;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
         }
         
         .card-title {
             font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 0.75rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--border);
         }
         
-        td {
-            padding: 0.75rem;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border);
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.625rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        th { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; }
         
-        tr:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
+        .code-cell { font-weight: 600; color: var(--accent); }
         
-        .code-cell {
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        /* Status Badge */
         .status-badge {
             display: inline-block;
-            padding: 0.25rem 0.625rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .status-recibido {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-        }
-        
-        .status-en-proceso, .status-incubacion, .status-lectura {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-        }
-        
-        .status-completado {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-        }
-        
-        .status-enviado {
-            background: rgba(168, 85, 247, 0.2);
-            color: #a855f7;
-        }
-        
-        .status-en-revision {
-            background: rgba(14, 165, 233, 0.2);
-            color: #38bdf8;
-        }
-        
-        .overdue-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.125rem 0.5rem;
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
             font-size: 0.7rem;
             font-weight: 600;
-            margin-left: 0.5rem;
         }
         
-        /* Buttons */
+        .status-recibido { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-en-proceso { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-completado { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-enviado { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        
         .btn {
             padding: 0.5rem 1rem;
             border: none;
@@ -296,9 +182,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
         }
         
         .btn-primary {
@@ -306,32 +189,178 @@
             color: #000;
         }
         
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
-        }
-        
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary);
         }
         
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+        
+        /* Scanner Styles */
+        .scanner-container {
+            max-width: 100%;
         }
         
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.8rem;
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
         
-        .btn-icon {
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
+        #reader video {
+            border-radius: 12px !important;
+        }
+        
+        #reader__scan_region {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        #reader__dashboard {
+            padding: 10px !important;
+        }
+        
+        .scanner-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        
+        #scanner-status {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 0.75rem;
             border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
         }
         
-        /* Print Label Section */
+        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box input:focus { outline: none; border-color: var(--accent); }
+        
+        /* Result Card */
+        .result-card {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .result-card.visible { display: block; }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .result-code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .result-field {
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .result-field .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+        }
+        
+        .result-field .value { font-size: 0.9rem; }
+        .result-field .value.highlight { color: var(--accent); font-weight: 600; }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .status-option {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .status-option:hover { border-color: var(--accent); }
+        .status-option.active { border-color: var(--accent); background: rgba(0, 217, 255, 0.2); color: var(--accent); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 0.875rem 1.25rem;
+            background: #22c55e;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.error { background: #ef4444; }
+        .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+        
+        .debug-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .debug-panel.visible { display: block; }
+        .debug-panel .log { margin-bottom: 0.25rem; color: #22c55e; }
+        .debug-panel .error { color: #ef4444; }
+        
         .print-section {
             display: none;
             margin-top: 1rem;
@@ -341,344 +370,66 @@
             border: 1px solid rgba(0, 217, 255, 0.2);
         }
         
-        .print-section.visible {
-            display: block;
-        }
+        .print-section.visible { display: block; }
         
         .label-preview {
             background: white;
-            padding: 0.75rem;
+            padding: 0.5rem;
             border-radius: 8px;
             width: fit-content;
-            margin: 1rem auto;
+            margin: 0.75rem auto;
             text-align: center;
         }
         
-        .label-preview .lab-name {
-            font-size: 8px;
-            font-weight: bold;
-            color: #000;
-            margin-bottom: 4px;
-        }
+        .label-preview .lab-name { font-size: 8px; font-weight: bold; color: #000; }
+        .label-preview svg { max-width: 180px; }
+        .label-preview .code-text { font-size: 9px; font-weight: bold; color: #000; }
         
-        .label-preview svg {
-            max-width: 200px;
-        }
-        
-        .label-preview .code-text {
-            font-size: 10px;
-            font-weight: bold;
-            color: #000;
-            margin-top: 2px;
-        }
-        
-        /* Scanner Section */
-        .scanner-container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        #reader {
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .scanner-controls {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .scanner-controls .btn {
-            flex: 1;
-        }
-        
-        #scanner-status {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-        }
-        
-        /* Manual Input */
-        .search-box {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .search-box input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        
-        .search-box input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        /* Sample Detail */
-        .sample-detail {
-            display: none;
-        }
-        
-        .sample-detail.visible {
-            display: block;
-        }
-        
-        .detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-        
-        .detail-code {
-            font-size: 1.75rem;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .detail-field {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .detail-field .label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
-        }
-        
-        .detail-field .value {
-            font-size: 1rem;
-            color: var(--text-primary);
-        }
-        
-        .detail-field .value.highlight {
-            color: var(--accent);
+        .overdue-tag {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-radius: 4px;
+            font-size: 0.65rem;
             font-weight: 600;
+            margin-left: 0.25rem;
         }
         
-        /* Status Update Grid */
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .result-grid { grid-template-columns: 1fr; }
+            .status-grid { grid-template-columns: repeat(2, 1fr); }
         }
         
-        .status-option {
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.85rem;
-        }
-        
-        .status-option:hover {
-            border-color: var(--accent);
-            background: rgba(0, 217, 255, 0.1);
-        }
-        
-        .status-option.active {
-            border-color: var(--accent);
-            background: rgba(0, 217, 255, 0.2);
-            color: var(--accent);
-        }
-        
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            padding: 1rem 1.5rem;
-            background: var(--status-completado);
-            color: white;
-            border-radius: 8px;
-            font-weight: 600;
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        
-        .toast.visible {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
-        }
-        
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .filter-tab {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-        
-        .filter-tab:hover {
-            border-color: var(--accent);
-        }
-        
-        .filter-tab.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #000;
-            font-weight: 600;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .nav {
-                width: 100%;
-                overflow-x: auto;
-            }
-            
-            .stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .detail-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Print Styles */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            
-            .label-preview, .label-preview * {
-                visibility: visible;
-            }
-            
-            .label-preview {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 2in;
-                height: 1in;
-                padding: 0.25in;
-            }
+            body * { visibility: hidden; }
+            .label-preview, .label-preview * { visibility: visible; }
+            .label-preview { position: absolute; left: 0; top: 0; }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
                 <span>🧪</span>
                 <h1>LabTrack AI</h1>
             </div>
-            
             <nav class="nav">
-                <button class="nav-btn active" onclick="showPage('dashboard')">
-                    📊 Dashboard
-                </button>
-                <button class="nav-btn" onclick="showPage('inbox')" id="inbox-nav">
-                    📥 Nuevas
-                    <span class="badge" id="inbox-badge">0</span>
-                </button>
-                <button class="nav-btn" onclick="showPage('scanner')">
-                    📷 Escanear
-                </button>
-                <button class="nav-btn" onclick="showPage('search')">
-                    🔍 Buscar
-                </button>
+                <button class="nav-btn active" onclick="showPage('dashboard')">📊 Dashboard</button>
+                <button class="nav-btn" onclick="showPage('inbox')" id="inbox-nav">📥 Nuevas <span class="badge" id="inbox-badge">0</span></button>
+                <button class="nav-btn" onclick="showPage('scanner')">📷 Escanear</button>
+                <button class="nav-btn" onclick="showPage('search')">🔍 Buscar</button>
             </nav>
-            
-            <div class="header-actions">
-                <button class="btn btn-secondary" onclick="refreshData()">
-                    🔄 Actualizar
-                </button>
-            </div>
         </div>
     </header>
     
-    <!-- Main Content -->
     <main class="main">
-        <!-- Stats Row -->
-        <div class="stats-row" id="stats-row">
+        <div class="stats-row">
             <div class="stat-card">
                 <div class="stat-value" id="stat-total">-</div>
-                <div class="stat-label">Total Muestras</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="stat-recibido">-</div>
-                <div class="stat-label">Recibidas</div>
+                <div class="stat-label">Total</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value" id="stat-proceso">-</div>
@@ -694,424 +445,298 @@
             </div>
         </div>
         
-        <!-- Dashboard Page -->
+        <!-- Dashboard -->
         <div class="page active" id="page-dashboard">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">📋 Todas las Muestras</h2>
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" onclick="filterSamples('all')">Todas</button>
-                        <button class="filter-tab" onclick="filterSamples('Recibido')">Recibidas</button>
-                        <button class="filter-tab" onclick="filterSamples('En Proceso')">En Proceso</button>
-                        <button class="filter-tab" onclick="filterSamples('Completado')">Completadas</button>
-                        <button class="filter-tab" onclick="filterSamples('overdue')">⚠️ Atrasadas</button>
-                    </div>
-                </div>
-                <div class="table-wrapper">
+                <h2 class="card-title">📋 Todas las Muestras</h2>
+                <div style="overflow-x: auto;">
                     <table>
                         <thead>
                             <tr>
                                 <th>Código</th>
                                 <th>Área</th>
                                 <th>Cliente</th>
-                                <th>Tipo</th>
-                                <th>Ingreso</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="samples-table">
-                            <tr>
-                                <td colspan="7">
-                                    <div class="loading">
-                                        <div class="spinner"></div>
-                                        <p>Cargando muestras...</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Inbox Page (New samples needing labels) -->
-        <div class="page" id="page-inbox">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">📥 Muestras Nuevas - Pendientes de Etiqueta</h2>
-                </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Área</th>
-                                <th>Cliente</th>
-                                <th>Tipo</th>
-                                <th>Ingreso</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="inbox-table">
+                        <tbody id="samples-table">
+                            <tr><td colspan="5"><div class="empty-state"><div class="icon">⏳</div><p>Cargando...</p></div></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             
-            <!-- Print Section -->
+            <button class="btn btn-secondary" onclick="toggleDebug()">🔧 Debug</button>
+            <button class="btn btn-secondary" onclick="loadData()" style="margin-left: 0.5rem;">🔄 Recargar</button>
+            <div class="debug-panel" id="debug-panel"></div>
+        </div>
+        
+        <!-- Inbox -->
+        <div class="page" id="page-inbox">
+            <div class="card">
+                <h2 class="card-title">📥 Muestras Nuevas - Pendientes de Etiqueta</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Área</th>
+                                <th>Cliente</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inbox-table"></tbody>
+                    </table>
+                </div>
+            </div>
             <div class="print-section" id="print-section">
-                <h3 style="margin-bottom: 1rem;">🏷️ Imprimir Etiqueta</h3>
-                <div class="label-preview" id="label-preview">
+                <h3 style="margin-bottom: 0.75rem; font-size: 0.9rem;">🏷️ Imprimir Etiqueta</h3>
+                <div class="label-preview">
                     <div class="lab-name">SAFER AGROBIOLÓGICOS</div>
                     <svg id="barcode-preview"></svg>
                     <div class="code-text" id="label-code"></div>
                 </div>
                 <div style="text-align: center;">
-                    <button class="btn btn-primary" onclick="printLabel()">
-                        🖨️ Imprimir
-                    </button>
-                    <button class="btn btn-secondary" onclick="closePrintSection()">
-                        Cerrar
-                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="printLabel()">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary btn-sm" onclick="closePrint()">Cerrar</button>
                 </div>
             </div>
         </div>
         
-        <!-- Scanner Page -->
+        <!-- Scanner -->
         <div class="page" id="page-scanner">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">📷 Escanear Código de Barras</h2>
-                </div>
+                <h2 class="card-title">📷 Escanear Código de Barras</h2>
                 <div class="scanner-container">
                     <div class="scanner-controls">
-                        <button class="btn btn-secondary" id="start-scanner" onclick="startScanner()">
-                            ▶️ Iniciar Cámara
-                        </button>
-                        <button class="btn btn-secondary" id="stop-scanner" onclick="stopScanner()" disabled>
-                            ⏹️ Detener
-                        </button>
+                        <button class="btn btn-primary" id="start-btn" onclick="startScanner()">▶️ Iniciar Cámara</button>
+                        <button class="btn btn-secondary" id="stop-btn" onclick="stopScanner()" disabled>⏹️ Detener</button>
                     </div>
                     <div id="reader"></div>
-                    <div id="scanner-status">
-                        Presiona "Iniciar Cámara" para escanear un código de barras
-                    </div>
+                    <p id="scanner-status">Presiona "Iniciar Cámara" para escanear</p>
                 </div>
             </div>
             
-            <!-- Sample Detail (shown after scan) -->
-            <div class="card sample-detail" id="scan-result">
-                <div class="detail-header">
-                    <div>
-                        <div class="detail-code" id="scan-codigo"></div>
-                        <span class="overdue-tag" id="scan-overdue" style="display: none;">⚠️ ATRASADO</span>
-                    </div>
-                    <span class="status-badge" id="scan-status"></span>
+            <div class="card result-card" id="scan-result">
+                <div class="result-header">
+                    <span class="result-code" id="scan-codigo">-</span>
+                    <span class="status-badge" id="scan-status">-</span>
                 </div>
-                <div class="detail-grid" id="scan-details"></div>
-                
-                <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                        📝 Actualizar Estado
-                    </h3>
-                    <div class="status-grid" id="scan-status-grid"></div>
-                </div>
-                
-                <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" onclick="resetScanner()">
-                    🔍 Escanear otra muestra
-                </button>
+                <div class="result-grid" id="scan-grid"></div>
+                <h4 style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Actualizar Estado:</h4>
+                <div class="status-grid" id="scan-status-btns"></div>
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" onclick="resetScan()">🔍 Escanear otra</button>
             </div>
         </div>
         
-        <!-- Search Page -->
+        <!-- Search -->
         <div class="page" id="page-search">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🔍 Buscar Muestra</h2>
-                </div>
+                <h2 class="card-title">🔍 Buscar Muestra</h2>
                 <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Ingresa código (ej: MIC-1 o SAFER-MIC-1-2025)" 
-                           onkeypress="if(event.key==='Enter') searchSample()">
-                    <button class="btn btn-primary" onclick="searchSample()">
-                        Buscar
-                    </button>
+                    <input type="text" id="search-input" placeholder="Código (ej: MIC-1)" onkeypress="if(event.key==='Enter')doSearch()">
+                    <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
                 </div>
             </div>
             
-            <!-- Search Result -->
-            <div class="card sample-detail" id="search-result">
-                <div class="detail-header">
-                    <div>
-                        <div class="detail-code" id="search-codigo"></div>
-                        <span class="overdue-tag" id="search-overdue" style="display: none;">⚠️ ATRASADO</span>
-                    </div>
-                    <span class="status-badge" id="search-status"></span>
+            <div class="card result-card" id="search-result">
+                <div class="result-header">
+                    <span class="result-code" id="search-codigo">-</span>
+                    <span class="status-badge" id="search-status">-</span>
                 </div>
-                <div class="detail-grid" id="search-details"></div>
-                
-                <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-                    <h3 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                        📝 Actualizar Estado
-                    </h3>
-                    <div class="status-grid" id="search-status-grid"></div>
-                </div>
+                <div class="result-grid" id="search-grid"></div>
+                <h4 style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Actualizar Estado:</h4>
+                <div class="status-grid" id="search-status-btns"></div>
             </div>
         </div>
     </main>
     
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
     
     <script>
-        // ============================================
-        // CONFIGURATION - UPDATE THIS URL
-        // ============================================
+        // ========== CONFIG ==========
         const API_URL = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
         
-        // ============================================
-        // STATE
-        // ============================================
-        let samplesData = [];
-        let currentFilter = 'all';
+        // ========== STATE ==========
+        let samples = [];
         let html5QrCode = null;
         let currentSample = null;
+        let debugLogs = [];
         
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSamples();
-        });
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', loadData);
         
-        // ============================================
-        // DATA LOADING
-        // ============================================
-        async function loadSamples() {
+        // ========== DEBUG ==========
+        function log(msg, isError = false) {
+            const time = new Date().toLocaleTimeString();
+            debugLogs.push({ time, msg, isError });
+            console.log(`[${time}]`, msg);
+            renderDebug();
+        }
+        
+        function renderDebug() {
+            const panel = document.getElementById('debug-panel');
+            panel.innerHTML = debugLogs.slice(-20).map(l => 
+                `<div class="${l.isError ? 'error' : 'log'}">[${l.time}] ${l.msg}</div>`
+            ).join('');
+            panel.scrollTop = panel.scrollHeight;
+        }
+        
+        function toggleDebug() {
+            document.getElementById('debug-panel').classList.toggle('visible');
+        }
+        
+        // ========== DATA LOADING ==========
+        async function loadData() {
+            log('Fetching data from API...');
+            
             try {
                 const response = await fetch(API_URL);
-                const data = await response.json();
+                const text = await response.text();
                 
-                // Parse samples from the response
-                if (data.samples) {
-                    if (Array.isArray(data.samples)) {
-                        samplesData = data.samples;
-                    } else {
-                        // Handle object format
-                        samplesData = Object.values(data.samples).filter(s => s && typeof s === 'object');
+                log(`Raw response length: ${text.length} chars`);
+                log(`Raw: ${text.substring(0, 200)}...`);
+                
+                // Try to parse - the response might be malformed
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    log('JSON parsed successfully');
+                } catch (e) {
+                    log('JSON parse failed, attempting fix...', true);
+                    // Try to fix malformed JSON
+                    const fixed = text
+                        .replace(/"samples":\s*\{([^}])/g, '"samples": [{"$1')
+                        .replace(/\},\s*\{/g, '},{')
+                        .replace(/\},\s*"generated_at"/g, '}],"generated_at"');
+                    try {
+                        data = JSON.parse(fixed);
+                        log('Fixed JSON parsed');
+                    } catch (e2) {
+                        log('Could not fix JSON: ' + e2.message, true);
+                        return;
                     }
                 }
                 
-                updateStats();
-                renderSamplesTable();
-                renderInboxTable();
+                // Extract samples
+                if (data.samples) {
+                    if (Array.isArray(data.samples)) {
+                        samples = data.samples;
+                        log('Samples is array');
+                    } else if (typeof data.samples === 'object') {
+                        // Could be object or malformed - try to extract
+                        const values = Object.values(data.samples);
+                        samples = values.filter(v => v && typeof v === 'object' && v.codigo_interno);
+                        log('Samples extracted from object');
+                    }
+                }
+                
+                log(`Loaded ${samples.length} samples`);
+                
+                if (samples.length > 0) {
+                    log(`Sample codes: ${samples.map(s => s.codigo_interno).join(', ')}`);
+                    log(`First sample: ${JSON.stringify(samples[0]).substring(0, 100)}`);
+                }
+                
+                updateUI();
                 
             } catch (error) {
-                console.error('Error loading samples:', error);
-                document.getElementById('samples-table').innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <div class="icon">❌</div>
-                                <p>Error al cargar datos. Verifica la conexión.</p>
-                                <button class="btn btn-secondary" onclick="loadSamples()" style="margin-top: 1rem;">
-                                    Reintentar
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                log('Fetch error: ' + error.message, true);
+                showToast('Error de conexión', true);
             }
         }
         
-        function refreshData() {
-            showToast('Actualizando datos...');
-            loadSamples();
+        function updateUI() {
+            updateStats();
+            renderTable();
+            renderInbox();
         }
         
-        // ============================================
-        // STATS
-        // ============================================
         function updateStats() {
-            const total = samplesData.length;
-            const recibido = samplesData.filter(s => s.Status === 'Recibido').length;
-            const enProceso = samplesData.filter(s => 
-                ['En Proceso', 'Incubación', 'Lectura', 'En Revisión'].includes(s.Status)
-            ).length;
-            const atrasadas = samplesData.filter(s => s.esta_atrasado === 1 || s.esta_atrasado === '1').length;
-            const completadas = samplesData.filter(s => 
-                ['Completado', 'Enviado'].includes(s.Status)
-            ).length;
-            
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-recibido').textContent = recibido;
-            document.getElementById('stat-proceso').textContent = enProceso;
-            document.getElementById('stat-atrasadas').textContent = atrasadas;
-            document.getElementById('stat-completadas').textContent = completadas;
-            
-            // Update inbox badge
-            document.getElementById('inbox-badge').textContent = recibido;
+            document.getElementById('stat-total').textContent = samples.length;
+            document.getElementById('stat-proceso').textContent = samples.filter(s => 
+                ['En Proceso', 'Incubación', 'Lectura'].includes(s.Status)).length;
+            document.getElementById('stat-atrasadas').textContent = samples.filter(s => 
+                s.esta_atrasado == 1).length;
+            document.getElementById('stat-completadas').textContent = samples.filter(s => 
+                ['Completado', 'Enviado'].includes(s.Status)).length;
+            document.getElementById('inbox-badge').textContent = samples.filter(s => 
+                s.Status === 'Recibido').length;
         }
         
-        // ============================================
-        // TABLE RENDERING
-        // ============================================
-        function renderSamplesTable() {
+        function renderTable() {
             const tbody = document.getElementById('samples-table');
             
-            let filtered = [...samplesData];
-            
-            if (currentFilter === 'overdue') {
-                filtered = filtered.filter(s => s.esta_atrasado === 1 || s.esta_atrasado === '1');
-            } else if (currentFilter !== 'all') {
-                filtered = filtered.filter(s => s.Status === currentFilter);
-            }
-            
-            if (filtered.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <div class="icon">📭</div>
-                                <p>No hay muestras para mostrar</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+            if (samples.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="icon">📭</div><p>No hay muestras</p></div></td></tr>';
                 return;
             }
             
-            tbody.innerHTML = filtered.map(sample => `
+            tbody.innerHTML = samples.map(s => `
                 <tr>
-                    <td class="code-cell">
-                        ${sample.codigo_interno || '-'}
-                        ${(sample.esta_atrasado === 1 || sample.esta_atrasado === '1') ? 
-                            '<span class="overdue-tag">⚠️</span>' : ''}
-                    </td>
-                    <td>${sample.lab_area || '-'}</td>
-                    <td>${getClientName(sample)}</td>
-                    <td>${sample.sample_type || '-'}</td>
-                    <td>${formatDate(sample.fecha_ingreso)}</td>
-                    <td>
-                        <span class="status-badge status-${(sample.Status || '').toLowerCase().replace(' ', '-')}">
-                            ${sample.Status || '-'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="viewSample('${sample.codigo_interno}')">
-                            👁️ Ver
-                        </button>
-                    </td>
+                    <td class="code-cell">${s.codigo_interno || '-'}${s.esta_atrasado == 1 ? '<span class="overdue-tag">⚠️</span>' : ''}</td>
+                    <td>${s.lab_area || '-'}</td>
+                    <td>${getClient(s)}</td>
+                    <td><span class="status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}">${s.Status || '-'}</span></td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="viewSample('${s.codigo_interno}')">Ver</button></td>
                 </tr>
             `).join('');
         }
         
-        function renderInboxTable() {
+        function renderInbox() {
             const tbody = document.getElementById('inbox-table');
-            const newSamples = samplesData.filter(s => s.Status === 'Recibido');
+            const newSamples = samples.filter(s => s.Status === 'Recibido');
             
             if (newSamples.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <div class="icon">✅</div>
-                                <p>No hay muestras pendientes de etiqueta</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="icon">✅</div><p>Sin pendientes</p></div></td></tr>';
                 return;
             }
             
-            tbody.innerHTML = newSamples.map(sample => `
+            tbody.innerHTML = newSamples.map(s => `
                 <tr>
-                    <td class="code-cell">${sample.codigo_interno || '-'}</td>
-                    <td>${sample.lab_area || '-'}</td>
-                    <td>${getClientName(sample)}</td>
-                    <td>${sample.sample_type || '-'}</td>
-                    <td>${formatDate(sample.fecha_ingreso)}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="showPrintLabel('${sample.barcode}', '${sample.codigo_interno}')">
-                            🏷️ Imprimir Etiqueta
-                        </button>
-                    </td>
+                    <td class="code-cell">${s.codigo_interno || '-'}</td>
+                    <td>${s.lab_area || '-'}</td>
+                    <td>${getClient(s)}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="showPrint('${s.barcode}', '${s.codigo_interno}')">🏷️ Etiqueta</button></td>
                 </tr>
             `).join('');
         }
         
-        // ============================================
-        // FILTERING
-        // ============================================
-        function filterSamples(filter) {
-            currentFilter = filter;
-            
-            // Update active tab
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.textContent.toLowerCase().includes(filter.toLowerCase()) || 
-                    (filter === 'all' && tab.textContent.includes('Todas')) ||
-                    (filter === 'overdue' && tab.textContent.includes('Atrasadas'))) {
-                    tab.classList.add('active');
-                }
-            });
-            
-            renderSamplesTable();
+        function getClient(s) {
+            if (s['name (from client)'] && s['name (from client)'][0]) return s['name (from client)'][0];
+            return '-';
         }
         
-        // ============================================
-        // PRINT LABEL
-        // ============================================
-        function showPrintLabel(barcode, codigo) {
-            const section = document.getElementById('print-section');
-            section.classList.add('visible');
-            
-            document.getElementById('label-code').textContent = codigo;
-            
-            JsBarcode("#barcode-preview", barcode, {
-                format: "CODE128",
-                width: 1.5,
-                height: 40,
-                displayValue: false,
-                margin: 0
-            });
-            
-            section.scrollIntoView({ behavior: 'smooth' });
+        function getTech(s) {
+            if (s['Name (from technician)'] && s['Name (from technician)'][0]) return s['Name (from technician)'][0];
+            return '-';
         }
         
-        function closePrintSection() {
-            document.getElementById('print-section').classList.remove('visible');
-        }
-        
-        function printLabel() {
-            window.print();
-        }
-        
-        // ============================================
-        // NAVIGATION
-        // ============================================
+        // ========== NAVIGATION ==========
         function showPage(page) {
-            // Update nav
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            
-            // Show page
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${page}`).classList.add('active');
             
-            // Reset states
-            if (page === 'search') {
-                document.getElementById('search-input').focus();
-            }
+            if (page === 'search') document.getElementById('search-input').focus();
         }
         
-        // ============================================
-        // SCANNER
-        // ============================================
+        // ========== SCANNER ==========
         function startScanner() {
+            log('Starting scanner...');
+            
             const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 100 }
+                fps: 15,
+                qrbox: { width: 280, height: 120 },
+                aspectRatio: 1.5,
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.CODE_39,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.QR_CODE
+                ]
             };
             
             html5QrCode = new Html5Qrcode("reader");
@@ -1119,206 +744,177 @@
             html5QrCode.start(
                 { facingMode: "environment" },
                 config,
-                onScanSuccess,
-                () => {}
+                (decodedText) => {
+                    log(`Scanned: ${decodedText}`);
+                    if (navigator.vibrate) navigator.vibrate(200);
+                    stopScanner();
+                    findSample(decodedText, 'scan');
+                },
+                (errorMessage) => {
+                    // Ignore scan errors (they happen constantly)
+                }
             ).then(() => {
-                document.getElementById('start-scanner').disabled = true;
-                document.getElementById('stop-scanner').disabled = false;
-                document.getElementById('scanner-status').textContent = 'Apunta al código de barras...';
+                document.getElementById('start-btn').disabled = true;
+                document.getElementById('stop-btn').disabled = false;
+                document.getElementById('scanner-status').textContent = '📷 Apunta al código de barras...';
+                log('Scanner started');
             }).catch(err => {
-                document.getElementById('scanner-status').textContent = 'Error: ' + err;
+                log('Scanner error: ' + err, true);
+                document.getElementById('scanner-status').textContent = '❌ Error: ' + err;
             });
         }
         
         function stopScanner() {
-            if (html5QrCode) {
+            if (html5QrCode && html5QrCode.isScanning) {
                 html5QrCode.stop().then(() => {
-                    document.getElementById('start-scanner').disabled = false;
-                    document.getElementById('stop-scanner').disabled = true;
-                    document.getElementById('scanner-status').textContent = 'Escáner detenido';
+                    document.getElementById('start-btn').disabled = false;
+                    document.getElementById('stop-btn').disabled = true;
+                    log('Scanner stopped');
                 });
             }
         }
         
-        function onScanSuccess(decodedText) {
-            if (navigator.vibrate) navigator.vibrate(200);
-            stopScanner();
-            findAndDisplaySample(decodedText, 'scan');
-        }
-        
-        function resetScanner() {
+        function resetScan() {
             document.getElementById('scan-result').classList.remove('visible');
             document.getElementById('scanner-status').textContent = 'Presiona "Iniciar Cámara" para escanear';
         }
         
-        // ============================================
-        // SEARCH
-        // ============================================
-        function searchSample() {
+        // ========== SEARCH ==========
+        function doSearch() {
             const query = document.getElementById('search-input').value.trim();
-            if (query) {
-                findAndDisplaySample(query, 'search');
-            }
+            if (query) findSample(query, 'search');
         }
         
-        function viewSample(codigo) {
+        function viewSample(code) {
             showPage('search');
-            document.getElementById('search-input').value = codigo;
-            findAndDisplaySample(codigo, 'search');
+            document.getElementById('search-input').value = code;
+            findSample(code, 'search');
         }
         
-        // ============================================
-        // SAMPLE DISPLAY
-        // ============================================
-        function findAndDisplaySample(query, target) {
-            const sample = samplesData.find(s => 
-                s.barcode === query || 
-                s.codigo_interno === query ||
-                s.barcode?.toLowerCase() === query.toLowerCase() ||
-                s.codigo_interno?.toLowerCase() === query.toLowerCase() ||
-                query.includes(s.codigo_interno) ||
-                s.barcode?.includes(query)
-            );
+        // ========== FIND SAMPLE ==========
+        function findSample(query, target) {
+            log(`Searching for: "${query}"`);
+            log(`Available samples: ${samples.length}`);
             
-            if (sample) {
-                currentSample = sample;
-                displaySampleDetail(sample, target);
+            const q = query.toUpperCase().trim();
+            
+            const found = samples.find(s => {
+                const code = (s.codigo_interno || '').toUpperCase();
+                const barcode = (s.barcode || '').toUpperCase();
+                
+                log(`Comparing: query="${q}" vs code="${code}" barcode="${barcode}"`);
+                
+                // Exact match
+                if (code === q || barcode === q) return true;
+                
+                // Partial match
+                if (code.includes(q) || barcode.includes(q)) return true;
+                if (q.includes(code) || q.includes(barcode)) return true;
+                
+                // Extract code from full barcode (SAFER-MIC-1-2025 -> MIC-1)
+                const parts = q.split('-');
+                if (parts.length >= 3) {
+                    const extracted = parts[1] + '-' + parts[2];
+                    log(`Extracted from barcode: ${extracted}`);
+                    if (code === extracted) return true;
+                }
+                
+                return false;
+            });
+            
+            if (found) {
+                log(`Found: ${found.codigo_interno}`);
+                currentSample = found;
+                showResult(found, target);
+                showToast(`✅ Encontrado: ${found.codigo_interno}`);
             } else {
-                showToast('Muestra no encontrada: ' + query);
+                log(`Not found: ${query}`, true);
+                showNotFound(query, target);
             }
         }
         
-        function displaySampleDetail(sample, target) {
-            const prefix = target;
+        function showResult(s, target) {
+            document.getElementById(`${target}-codigo`).textContent = s.codigo_interno || '-';
             
-            document.getElementById(`${prefix}-codigo`).textContent = sample.codigo_interno || '-';
+            const statusEl = document.getElementById(`${target}-status`);
+            statusEl.textContent = s.Status || '-';
+            statusEl.className = `status-badge status-${(s.Status || '').toLowerCase().replace(' ', '-')}`;
             
-            const statusEl = document.getElementById(`${prefix}-status`);
-            statusEl.textContent = sample.Status || '-';
-            statusEl.className = `status-badge status-${(sample.Status || '').toLowerCase().replace(' ', '-')}`;
-            
-            const overdueEl = document.getElementById(`${prefix}-overdue`);
-            overdueEl.style.display = (sample.esta_atrasado === 1 || sample.esta_atrasado === '1') ? 'inline-flex' : 'none';
-            
-            const detailsHtml = `
-                <div class="detail-field">
-                    <div class="label">Código de Barras</div>
-                    <div class="value">${sample.barcode || '-'}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Área</div>
-                    <div class="value highlight">${sample.lab_area || '-'}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Cliente</div>
-                    <div class="value">${getClientName(sample)}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Técnico</div>
-                    <div class="value">${getTechName(sample)}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Tipo de Muestra</div>
-                    <div class="value">${sample.sample_type || '-'}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Cultivo</div>
-                    <div class="value">${sample.cultivo || '-'}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Fecha Ingreso</div>
-                    <div class="value">${formatDate(sample.fecha_ingreso)}</div>
-                </div>
-                <div class="detail-field">
-                    <div class="label">Fecha Entrega</div>
-                    <div class="value">${formatDate(sample.fecha_estimada_entrega)}</div>
-                </div>
-                ${sample.observaciones ? `
-                    <div class="detail-field" style="grid-column: span 2;">
-                        <div class="label">Observaciones</div>
-                        <div class="value">${sample.observaciones}</div>
-                    </div>
-                ` : ''}
+            document.getElementById(`${target}-grid`).innerHTML = `
+                <div class="result-field"><div class="label">Barcode</div><div class="value">${s.barcode || '-'}</div></div>
+                <div class="result-field"><div class="label">Área</div><div class="value highlight">${s.lab_area || '-'}</div></div>
+                <div class="result-field"><div class="label">Cliente</div><div class="value">${getClient(s)}</div></div>
+                <div class="result-field"><div class="label">Técnico</div><div class="value">${getTech(s)}</div></div>
+                <div class="result-field"><div class="label">Tipo</div><div class="value">${s.sample_type || '-'}</div></div>
+                <div class="result-field"><div class="label">Cultivo</div><div class="value">${s.cultivo || '-'}</div></div>
+                <div class="result-field"><div class="label">Ingreso</div><div class="value">${formatDate(s.fecha_ingreso)}</div></div>
+                <div class="result-field"><div class="label">Entrega</div><div class="value">${formatDate(s.fecha_estimada_entrega)}</div></div>
             `;
             
-            document.getElementById(`${prefix}-details`).innerHTML = detailsHtml;
+            const statuses = ['Recibido', 'En Proceso', 'Lectura', 'Completado', 'Enviado'];
+            document.getElementById(`${target}-status-btns`).innerHTML = statuses.map(st => 
+                `<button class="status-option ${s.Status === st ? 'active' : ''}" onclick="updateStatus('${st}')">${st}</button>`
+            ).join('');
             
-            // Status update buttons
-            const statuses = ['Recibido', 'En Proceso', 'Incubación', 'Lectura', 'En Revisión', 'Completado', 'Enviado'];
-            document.getElementById(`${prefix}-status-grid`).innerHTML = statuses.map(status => `
-                <button class="status-option ${sample.Status === status ? 'active' : ''}" 
-                        onclick="updateStatus('${status}')">
-                    ${status}
-                </button>
-            `).join('');
-            
-            document.getElementById(`${prefix}-result`).classList.add('visible');
+            document.getElementById(`${target}-result`).classList.add('visible');
         }
         
-        // ============================================
-        // STATUS UPDATE
-        // ============================================
+        function showNotFound(query, target) {
+            document.getElementById(`${target}-result`).classList.add('visible');
+            document.getElementById(`${target}-codigo`).textContent = '❌ No encontrado';
+            document.getElementById(`${target}-status`).textContent = '';
+            document.getElementById(`${target}-grid`).innerHTML = `
+                <div class="empty-state" style="grid-column: span 2;">
+                    <p><strong>Código buscado:</strong> ${query}</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.8rem;">Muestras disponibles: ${samples.map(s => s.codigo_interno).join(', ') || 'Ninguna cargada'}</p>
+                    <button class="btn btn-secondary" onclick="loadData()" style="margin-top: 1rem;">🔄 Recargar datos</button>
+                </div>
+            `;
+            document.getElementById(`${target}-status-btns`).innerHTML = '';
+            showToast('Muestra no encontrada', true);
+        }
+        
         function updateStatus(newStatus) {
             if (!currentSample) return;
+            log(`Updating ${currentSample.codigo_interno} to ${newStatus}`);
             
-            // Update UI immediately
-            showToast(`Estado actualizado: ${newStatus}`);
+            // Update local
+            const idx = samples.findIndex(s => s.codigo_interno === currentSample.codigo_interno);
+            if (idx > -1) samples[idx].Status = newStatus;
+            currentSample.Status = newStatus;
             
-            // Update local data
-            const index = samplesData.findIndex(s => s.codigo_interno === currentSample.codigo_interno);
-            if (index > -1) {
-                samplesData[index].Status = newStatus;
-            }
+            updateUI();
+            showToast(`✅ Estado: ${newStatus}`);
             
-            // Re-render
-            updateStats();
-            renderSamplesTable();
-            renderInboxTable();
-            
-            // Update current display
-            if (document.getElementById('scan-result').classList.contains('visible')) {
-                displaySampleDetail({...currentSample, Status: newStatus}, 'scan');
-            }
-            if (document.getElementById('search-result').classList.contains('visible')) {
-                displaySampleDetail({...currentSample, Status: newStatus}, 'search');
-            }
-            
-            // Note: To persist to Airtable, you would need a Make.com update webhook
-            console.log('Status update:', currentSample.codigo_interno, '->', newStatus);
+            // Note: Would need Make.com webhook to persist to Airtable
         }
         
-        // ============================================
-        // HELPERS
-        // ============================================
-        function getClientName(sample) {
-            if (sample['name (from client)'] && sample['name (from client)'][0]) {
-                return sample['name (from client)'][0];
-            }
-            return sample.client || '-';
-        }
-        
-        function getTechName(sample) {
-            if (sample['Name (from technician)'] && sample['Name (from technician)'][0]) {
-                return sample['Name (from technician)'][0];
-            }
-            return sample.technician || '-';
-        }
-        
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('es-CO', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
+        // ========== PRINT ==========
+        function showPrint(barcode, code) {
+            document.getElementById('label-code').textContent = code;
+            JsBarcode("#barcode-preview", barcode, {
+                format: "CODE128", width: 1.5, height: 35, displayValue: false, margin: 0
             });
+            document.getElementById('print-section').classList.add('visible');
         }
         
-        function showToast(message) {
+        function closePrint() {
+            document.getElementById('print-section').classList.remove('visible');
+        }
+        
+        function printLabel() { window.print(); }
+        
+        // ========== HELPERS ==========
+        function formatDate(d) {
+            if (!d) return '-';
+            return new Date(d).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('visible');
-            setTimeout(() => toast.classList.remove('visible'), 3000);
+            toast.textContent = msg;
+            toast.className = `toast visible ${isError ? 'error' : ''}`;
+            setTimeout(() => toast.classList.remove('visible'), 4000);
         }
     </script>
 </body>

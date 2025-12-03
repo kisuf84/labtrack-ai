@@ -6,7 +6,7 @@
     <title>LabTrack AI - SAFER Agrobiológicos</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -104,7 +104,8 @@
         .label-preview .lab { font-size: 7px; font-weight: bold; color: #000; text-align: center; }
         .label-preview .dual { display: flex; align-items: center; gap: 8px; justify-content: center; }
         .label-preview svg { max-width: 140px; height: 30px; }
-        .label-preview canvas { width: 45px !important; height: 45px !important; }
+        .label-preview .qr-container { width: 50px; height: 50px; }
+        .label-preview .qr-container img, .label-preview .qr-container canvas { width: 50px !important; height: 50px !important; }
         .label-preview .code { font-size: 9px; font-weight: bold; color: #000; text-align: center; margin-top: 2px; }
         
         .gen-result { display: none; text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
@@ -210,7 +211,7 @@
                     <div class="lab">SAFER AGROBIOLÓGICOS</div>
                     <div class="dual">
                         <svg id="print-bc"></svg>
-                        <canvas id="print-qr"></canvas>
+                        <div id="print-qr" class="qr-container"></div>
                     </div>
                     <div class="code" id="print-code">-</div>
                 </div>
@@ -267,7 +268,7 @@
                         <div class="lab">SAFER AGROBIOLÓGICOS</div>
                         <div class="dual" id="gen-dual">
                             <svg id="gen-bc"></svg>
-                            <canvas id="gen-qr"></canvas>
+                            <div id="gen-qr" class="qr-container"></div>
                         </div>
                         <div class="code" id="gen-label-code">-</div>
                     </div>
@@ -494,22 +495,33 @@
             document.getElementById('gen-full-code').textContent = barcode;
             document.getElementById('gen-label-code').textContent = codigo;
             
-            const dual = document.getElementById('gen-dual');
             const bcEl = document.getElementById('gen-bc');
             const qrEl = document.getElementById('gen-qr');
             
             // Reset visibility
             bcEl.style.display = 'none';
             qrEl.style.display = 'none';
+            qrEl.innerHTML = ''; // Clear previous QR
             
             if (format === 'barcode' || format === 'both') {
-                JsBarcode("#gen-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
-                bcEl.style.display = 'block';
+                try {
+                    JsBarcode("#gen-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
+                    bcEl.style.display = 'block';
+                } catch(e) { console.error('Barcode error:', e); }
             }
             
             if (format === 'qr' || format === 'both') {
-                QRCode.toCanvas(qrEl, barcode, { width: 45, margin: 0 });
-                qrEl.style.display = 'block';
+                try {
+                    new QRCode(qrEl, {
+                        text: barcode,
+                        width: 50,
+                        height: 50,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    qrEl.style.display = 'block';
+                } catch(e) { console.error('QR error:', e); }
             }
             
             document.getElementById('gen-result').classList.add('visible');
@@ -524,8 +536,26 @@
         // ========== PRINT ==========
         function showPrint(barcode, code) {
             document.getElementById('print-code').textContent = code;
-            JsBarcode("#print-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
-            QRCode.toCanvas(document.getElementById('print-qr'), barcode, { width: 45, margin: 0 });
+            
+            // Generate barcode
+            try {
+                JsBarcode("#print-bc", barcode, { format: "CODE128", width: 1.2, height: 28, displayValue: false, margin: 0 });
+            } catch(e) { console.error('Print barcode error:', e); }
+            
+            // Generate QR
+            const qrEl = document.getElementById('print-qr');
+            qrEl.innerHTML = ''; // Clear previous
+            try {
+                new QRCode(qrEl, {
+                    text: barcode,
+                    width: 50,
+                    height: 50,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch(e) { console.error('Print QR error:', e); }
+            
             document.getElementById('print-card').style.display = 'block';
         }
         

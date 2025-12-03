@@ -680,26 +680,47 @@
             toast('No encontrado', true);
         }
         
-        function updateStatus(newStatus) {
+        async function updateStatus(newStatus) {
             if (!currentSample) return;
             
-            // Update local
-            const idx = samples.findIndex(s => s.codigo_interno === currentSample.codigo_interno);
-            if (idx > -1) samples[idx].Status = newStatus;
-            currentSample.Status = newStatus;
+            const codigo = currentSample.codigo_interno;
             
-            // Note: This does NOT sync to Airtable automatically
-            // Would need a Make.com webhook for that
+            // Show updating state
+            toast('⏳ Actualizando...');
             
-            updateUI();
-            toast('✅ ' + currentSample.codigo_interno + ' → ' + newStatus);
-            
-            // Refresh views
-            ['scan', 'search'].forEach(t => {
-                if (document.getElementById(`${t}-result`).classList.contains('visible')) {
-                    showResult(currentSample, t);
+            try {
+                // Call Make.com webhook to update Airtable
+                const response = await fetch('https://hook.us1.make.com/q8ltx4detc9u5sltq6qriyge4ic20wn6', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        codigo_interno: codigo,
+                        status: newStatus
+                    })
+                });
+                
+                if (response.ok) {
+                    // Update local state
+                    const idx = samples.findIndex(s => s.codigo_interno === codigo);
+                    if (idx > -1) samples[idx].Status = newStatus;
+                    currentSample.Status = newStatus;
+                    
+                    updateUI();
+                    toast('✅ ' + codigo + ' → ' + newStatus);
+                    
+                    // Refresh views
+                    ['scan', 'search'].forEach(t => {
+                        if (document.getElementById(`${t}-result`).classList.contains('visible')) {
+                            showResult(currentSample, t);
+                        }
+                    });
+                } else {
+                    throw new Error('Update failed');
                 }
-            });
+            } catch (error) {
+                console.error('Update error:', error);
+                toast('❌ Error al actualizar', true);
+            }
         }
         
         // ========== TOAST ==========

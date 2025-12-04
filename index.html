@@ -692,29 +692,24 @@
             // Show updating state
             toast('⏳ Actualizando...');
             
-            const webhookUrl = 'https://hook.us1.make.com/q8ltx4detc9u5sltq6qriyge4ic20wn6';
-            const payload = JSON.stringify({
+            // Build URL with query parameters - Make.com webhooks accept GET requests too
+            const baseUrl = 'https://hook.us1.make.com/q8ltx4detc9u5sltq6qriyge4ic20wn6';
+            const params = new URLSearchParams({
                 codigo_interno: codigo,
                 status: newStatus
             });
+            const fullUrl = `${baseUrl}?${params.toString()}`;
             
             try {
-                // Try using sendBeacon first (works cross-origin)
-                const sent = navigator.sendBeacon(webhookUrl, new Blob([payload], { type: 'application/json' }));
+                // Method 1: Use an image request (always works cross-origin)
+                const img = new Image();
+                img.onload = () => console.log('Update request completed');
+                img.onerror = () => console.log('Update request sent (error expected but data received)');
+                img.src = fullUrl;
                 
-                if (sent) {
-                    console.log('Beacon sent successfully');
-                } else {
-                    // Fallback to fetch with no-cors
-                    await fetch(webhookUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: payload
-                    });
-                    console.log('Fetch sent (no-cors)');
-                }
+                console.log('Request URL:', fullUrl);
                 
-                // Update local state (we assume success since we can't read response)
+                // Update local state
                 const idx = samples.findIndex(s => s.codigo_interno === codigo);
                 if (idx > -1) samples[idx].Status = newStatus;
                 currentSample.Status = newStatus;

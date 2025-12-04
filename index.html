@@ -681,45 +681,57 @@
         }
         
         async function updateStatus(newStatus) {
-            if (!currentSample) return;
+            if (!currentSample) {
+                console.error('No current sample');
+                return;
+            }
             
             const codigo = currentSample.codigo_interno;
+            console.log('Updating:', codigo, 'to', newStatus);
             
             // Show updating state
             toast('⏳ Actualizando...');
             
+            const webhookUrl = 'https://hook.us1.make.com/q8ltx4detc9u5sltq6qriyge4ic20wn6';
+            const payload = JSON.stringify({
+                codigo_interno: codigo,
+                status: newStatus
+            });
+            
             try {
-                // Call Make.com webhook to update Airtable
-                const response = await fetch('https://hook.us1.make.com/q8ltx4detc9u5sltq6qriyge4ic20wn6', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        codigo_interno: codigo,
-                        status: newStatus
-                    })
+                // Try using sendBeacon first (works cross-origin)
+                const sent = navigator.sendBeacon(webhookUrl, new Blob([payload], { type: 'application/json' }));
+                
+                if (sent) {
+                    console.log('Beacon sent successfully');
+                } else {
+                    // Fallback to fetch with no-cors
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: payload
+                    });
+                    console.log('Fetch sent (no-cors)');
+                }
+                
+                // Update local state (we assume success since we can't read response)
+                const idx = samples.findIndex(s => s.codigo_interno === codigo);
+                if (idx > -1) samples[idx].Status = newStatus;
+                currentSample.Status = newStatus;
+                
+                updateUI();
+                toast('✅ ' + codigo + ' → ' + newStatus);
+                
+                // Refresh views
+                ['scan', 'search'].forEach(t => {
+                    if (document.getElementById(`${t}-result`).classList.contains('visible')) {
+                        showResult(currentSample, t);
+                    }
                 });
                 
-                if (response.ok) {
-                    // Update local state
-                    const idx = samples.findIndex(s => s.codigo_interno === codigo);
-                    if (idx > -1) samples[idx].Status = newStatus;
-                    currentSample.Status = newStatus;
-                    
-                    updateUI();
-                    toast('✅ ' + codigo + ' → ' + newStatus);
-                    
-                    // Refresh views
-                    ['scan', 'search'].forEach(t => {
-                        if (document.getElementById(`${t}-result`).classList.contains('visible')) {
-                            showResult(currentSample, t);
-                        }
-                    });
-                } else {
-                    throw new Error('Update failed');
-                }
             } catch (error) {
                 console.error('Update error:', error);
-                toast('❌ Error al actualizar', true);
+                toast('❌ Error: ' + error.message, true);
             }
         }
         

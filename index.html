@@ -372,7 +372,12 @@
             try {
                 const res = await fetch(API_URL);
                 const data = await res.json();
-                if (data.samples && Array.isArray(data.samples) && data.samples.length > 0) {
+                // Handle both formats: direct array OR {samples: [...]}
+                if (Array.isArray(data) && data.length > 0) {
+                    samples = data;
+                    badge.textContent = samples.length + ' Live';
+                    badge.className = 'badge live';
+                } else if (data.samples && Array.isArray(data.samples) && data.samples.length > 0) {
                     samples = data.samples;
                     badge.textContent = samples.length + ' Live';
                     badge.className = 'badge live';

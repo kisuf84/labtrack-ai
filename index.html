@@ -335,7 +335,8 @@
     
     <script>
         // ========== CONFIG ==========
-        const API_URL = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
+        const API_URL_DIRECT = 'https://hook.us1.make.com/aksusdfeg35nwle02o5twcjpglgxr3em';
+        const API_URL = 'https://corsproxy.io/?' + encodeURIComponent(API_URL_DIRECT);
         
         // Statuses - MUST MATCH AIRTABLE EXACTLY
         const STATUSES = ['Recibido', 'En Proceso', 'Incubación', 'Lectura', 'En Revisión', 'Completado', 'Enviado', 'Cancelado'];

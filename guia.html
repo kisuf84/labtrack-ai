@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Usuario - LabTrack AI</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f0fdf4;
+        }
+        h1 {
+            color: #166534;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        h2 {
+            color: #166534;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        h3 {
+            color: #15803d;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p, ul, ol {
+            margin-bottom: 1rem;
+        }
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+        .step-card {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 12px 12px 0;
+        }
+        .step-number {
+            background: #22c55e;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        .tool-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        .tool-form { background: #dbeafe; color: #1e40af; }
+        .tool-dashboard { background: #dcfce7; color: #166534; }
+        .tool-gpt { background: #fae8ff; color: #86198f; }
+        .tool-airtable { background: #fef3c7; color: #92400e; }
+        .workflow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .workflow span {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .arrow {
+            color: #9ca3af;
+            font-size: 1.2rem;
+        }
+        .example {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .example-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+        code {
+            background: #e5e7eb;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        a {
+            color: #166534;
+        }
+        .highlight {
+            background: linear-gradient(120deg, #d9f99d 0%, #d9f99d 100%);
+            padding: 0 0.2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f0fdf4;
+            font-weight: 600;
+            color: #166534;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Guía de Usuario - LabTrack AI</h1>
+        <p class="subtitle">Sistema de Seguimiento de Muestras para SAFER Agrobiológicos</p>
+
+        <!-- OVERVIEW -->
+        <h2>📋 Resumen del Sistema</h2>
+        <p>LabTrack AI tiene <strong>4 herramientas principales</strong> que trabajan juntas:</p>
+        
+        <table>
+            <tr>
+                <th>Herramienta</th>
+                <th>Función Principal</th>
+                <th>Quién la Usa</th>
+            </tr>
+            <tr>
+                <td><span class="tool-badge tool-form">📝 Formulario</span></td>
+                <td>Registrar nuevas muestras</td>
+                <td>Recepción</td>
+            </tr>
+            <tr>
+                <td><span class="tool-badge tool-dashboard">📊 Dashboard</span></td>
+                <td>Ver estado, imprimir etiquetas, escanear, actualizar</td>
+                <td>Técnicos, Supervisores</td>
+            </tr>
+            <tr>
+                <td><span class="tool-badge tool-gpt">🤖 Asistente GPT</span></td>
+                <td>Consultas en lenguaje natural, actualizar estados</td>
+                <td>Todos</td>
+            </tr>
+            <tr>
+                <td><span class="tool-badge tool-airtable">🗄️ Airtable</span></td>
+                <td>Base de datos central (edición avanzada)</td>
+                <td>Administradores</td>
+            </tr>
+        </table>
+
+        <!-- WORKFLOW -->
+        <h2>🔄 Flujo de Trabajo Completo</h2>
+        <div class="workflow">
+            <span class="tool-badge tool-form">1. Formulario</span>
+            <span class="arrow">→</span>
+            <span class="tool-badge tool-dashboard">2. Imprimir Etiqueta</span>
+            <span class="arrow">→</span>
+            <span class="tool-badge tool-dashboard">3. Escanear y Actualizar</span>
+            <span class="arrow">→</span>
+            <span class="tool-badge tool-gpt">4. Consultar/Reportar</span>
+        </div>
+
+        <!-- STEP 1 -->
+        <div class="step-card">
+            <h3><span class="step-number">1</span> Registrar Nueva Muestra</h3>
+            <p><span class="tool-badge tool-form">📝 Formulario de Ingreso</span></p>
+            
+            <p><strong>¿Cuándo usar?</strong> Cuando llega una nueva muestra al laboratorio.</p>
+            
+            <p><strong>Pasos:</strong></p>
+            <ol>
+                <li>Abrir el formulario de ingreso (enlace de Airtable)</li>
+                <li>Llenar los datos de la muestra:
+                    <ul>
+                        <li><strong>Área del laboratorio:</strong> Microbiología, Nematología, o Fitopatología</li>
+                        <li><strong>Cliente:</strong> Seleccionar de la lista</li>
+                        <li><strong>Tipo de muestra:</strong> Raíz, Suelo, Hoja, Flor, etc.</li>
+                        <li><strong>Cultivo:</strong> Rosa, Clavel, Aguacate, etc.</li>
+                        <li><strong>Finca:</strong> Nombre de la finca (opcional)</li>
+                    </ul>
+                </li>
+                <li>Enviar formulario</li>
+                <li>El sistema genera automáticamente:
+                    <ul>
+                        <li>Código interno (ej: <code>MIC-5</code>)</li>
+                        <li>Código de barras (ej: <code>SAFER-MIC-5-2025</code>)</li>
+                        <li>Estado inicial: <code>Recibido</code></li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card">
+            <h3><span class="step-number">2</span> Imprimir Etiqueta</h3>
+            <p><span class="tool-badge tool-dashboard">📊 Dashboard → Pestaña "Etiquetas"</span></p>
+            
+            <p><strong>¿Cuándo usar?</strong> Después de registrar la muestra, para pegarla en el recipiente.</p>
+            
+            <p><strong>Pasos:</strong></p>
+            <ol>
+                <li>Abrir el Dashboard</li>
+                <li>Ir a la pestaña <strong>🏷️ Etiquetas</strong></li>
+                <li>Ver las muestras con estado "Recibido" (pendientes de etiqueta)</li>
+                <li>Click en <strong>🏷️ Imprimir</strong> junto a la muestra</li>
+                <li>Se abre vista previa con:
+                    <ul>
+                        <li>Logo de SAFER AGROBIOLÓGICOS</li>
+                        <li>Código de barras</li>
+                        <li>Código QR</li>
+                        <li>Código interno</li>
+                    </ul>
+                </li>
+                <li>Imprimir y pegar en el recipiente</li>
+            </ol>
+
+            <div class="example">
+                <p class="example-title">💡 También puedes generar etiquetas manualmente:</p>
+                <p>Ir a la pestaña <strong>➕ Generar</strong> → Seleccionar área, número y formato → Click "Generar"</p>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card">
+            <h3><span class="step-number">3</span> Escanear y Actualizar Estado</h3>
+            <p><span class="tool-badge tool-dashboard">📊 Dashboard → Pestaña "Escanear" o "Buscar"</span></p>
+            
+            <p><strong>¿Cuándo usar?</strong> Cuando la muestra avanza en el proceso (cambia de estado).</p>
+            
+            <p><strong>Opción A - Escanear QR (recomendado):</strong></p>
+            <ol>
+                <li>Ir a la pestaña <strong>📷 Escanear</strong></li>
+                <li>Permitir acceso a la cámara</li>
+                <li>Apuntar al código QR de la etiqueta</li>
+                <li>Se muestran los detalles de la muestra</li>
+                <li>Click en el nuevo estado (ej: "En Proceso", "Completado")</li>
+                <li>¡Listo! Se actualiza en Airtable automáticamente</li>
+            </ol>
+
+            <p><strong>Opción B - Buscar manualmente:</strong></p>
+            <ol>
+                <li>Ir a la pestaña <strong>🔍 Buscar</strong></li>
+                <li>Escribir el código (ej: <code>MIC-1</code>)</li>
+                <li>Presionar Enter o click en Buscar</li>
+                <li>Click en el nuevo estado</li>
+            </ol>
+
+            <div class="example">
+                <p class="example-title">📊 Estados disponibles (en orden del proceso):</p>
+                <p><code>Recibido</code> → <code>En Proceso</code> → <code>Incubación</code> → <code>Lectura</code> → <code>En Revisión</code> → <code>Completado</code> → <code>Enviado</code></p>
+                <p>También existe <code>Cancelado</code> para muestras que no se procesan.</p>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-card">
+            <h3><span class="step-number">4</span> Consultar con el Asistente GPT</h3>
+            <p><span class="tool-badge tool-gpt">🤖 Asistente LabTrack AI</span></p>
+            
+            <p><strong>¿Cuándo usar?</strong> Para consultas rápidas, reportes, o actualizar estados por voz/texto.</p>
+            
+            <p><strong>Ejemplos de consultas:</strong></p>
+            <ul>
+                <li><em>"¿Cuántas muestras hay en total?"</em></li>
+                <li><em>"¿Cuáles muestras están atrasadas?"</em></li>
+                <li><em>"Dame los detalles de MIC-1"</em></li>
+                <li><em>"¿Cuántas muestras tiene el cliente Diego Rivera?"</em></li>
+                <li><em>"¿Qué muestras están en proceso?"</em></li>
+                <li><em>"Resumen del estado del laboratorio"</em></li>
+            </ul>
+
+            <p><strong>Ejemplos de actualizaciones:</strong></p>
+            <ul>
+                <li><em>"Cambia MIC-1 a Completado"</em></li>
+                <li><em>"Actualiza el estado de NEM-2 a En Proceso"</em></li>
+                <li><em>"Marca FIT-3 como Enviado"</em></li>
+            </ul>
+
+            <div class="example">
+                <p class="example-title">💡 Tip: El asistente entiende español natural</p>
+                <p>No necesitas usar comandos exactos. Pregunta como si hablaras con un colega.</p>
+            </div>
+        </div>
+
+        <!-- DASHBOARD TABS -->
+        <h2>📊 Pestañas del Dashboard</h2>
+        <table>
+            <tr>
+                <th>Pestaña</th>
+                <th>Función</th>
+            </tr>
+            <tr>
+                <td><strong>📊 Dashboard</strong></td>
+                <td>Vista general: estadísticas, tabla de muestras, filtros rápidos. Click en los números para filtrar.</td>
+            </tr>
+            <tr>
+                <td><strong>🏷️ Etiquetas</strong></td>
+                <td>Muestras pendientes de etiqueta (estado "Recibido"). Botón para imprimir cada una.</td>
+            </tr>
+            <tr>
+                <td><strong>➕ Generar</strong></td>
+                <td>Crear etiquetas manualmente seleccionando área, número y formato (código de barras, QR, o ambos).</td>
+            </tr>
+            <tr>
+                <td><strong>📷 Escanear</strong></td>
+                <td>Usar la cámara para escanear códigos QR y ver/actualizar muestras.</td>
+            </tr>
+            <tr>
+                <td><strong>🔍 Buscar</strong></td>
+                <td>Buscar muestras escribiendo el código manualmente.</td>
+            </tr>
+        </table>
+
+        <!-- INDICATORS -->
+        <h2>⚠️ Indicadores Importantes</h2>
+        <ul>
+            <li><strong>Badge "Live"</strong> (verde): El sistema está conectado y los datos son en tiempo real.</li>
+            <li><strong>Badge "Demo"</strong> (gris): Modo de demostración con datos de ejemplo.</li>
+            <li><strong>⚠️ junto al código:</strong> Muestra atrasada (pasó la fecha de entrega estimada).</li>
+        </ul>
+
+        <!-- TIPS -->
+        <h2>💡 Tips y Mejores Prácticas</h2>
+        <ul>
+            <li><strong>Actualizar estados inmediatamente:</strong> Escanear la muestra cada vez que cambia de etapa.</li>
+            <li><strong>Revisar muestras atrasadas:</strong> En el Dashboard, click en el número de "Atrasadas" para ver cuáles necesitan atención.</li>
+            <li><strong>Usar el GPT para reportes:</strong> Preguntar "resumen del día" o "muestras completadas esta semana".</li>
+            <li><strong>Etiquetas con QR:</strong> Más rápidas de escanear que los códigos de barras tradicionales.</li>
+        </ul>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p><strong>¿Problemas o preguntas?</strong> Contactar al administrador del sistema.</p>
+            <p><a href="index.html">← Ir al Dashboard</a> · <a href="privacy.html">Política de Privacidad</a></p>
+            <p style="margin-top: 1rem;">LabTrack AI © 2025 - Desarrollado para SAFER Agrobiológicos</p>
+        </div>
+    </div>
+</body>
+</html>
